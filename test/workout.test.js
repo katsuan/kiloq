@@ -155,5 +155,5 @@ test("送るボタンの見た目を、自前の CSS で上書きしない", asy
   const css = fs.readdirSync(dir).map((f) => fs.readFileSync(new URL(f, dir), "utf8")).join("\n");
   assert.ok(!/\.ls-send\.is-line\b/.test(css));
   const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
-  assert.match(html, /class="ls-send is-line is-oqrn" id="share-button"[^>]*>カードで送る</);
+  assert.match(html, /class="ls-send is-line is-oqrn" id="share-button"[^>]*>カードでおくるん</);
 });

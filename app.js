@@ -3,12 +3,12 @@
 import {
   buildWorkoutFlexMessage as buildWorkoutFlexPayload,
   getCreditText
-} from "./js/card.js?v=202610291748";
+} from "./js/card.js?v=202611012034";
 import {
   EXERCISE_CATALOG,
   MENU_PRESETS,
   MUSCLE_FILTERS
-} from "./js/catalog.js?v=202610291748";
+} from "./js/catalog.js?v=202611012034";
 import {
   renderButton,
   renderChip,
@@ -17,17 +17,17 @@ import {
   renderField,
   renderSheet,
   renderStartButton
-} from "./js/components.js?v=202610291748";
+} from "./js/components.js?v=202611012034";
 import {
   buildSampleWorkout,
   mockRanking
-} from "./js/fixtures.js?v=202610291748";
+} from "./js/fixtures.js?v=202611012034";
 import {
   cssEscape,
   escapeHtml,
   formatLocaleMetric
-} from "./js/format.js?v=202610291748";
-import { buildHistoryCsv } from "./js/history-csv.js?v=202610291748";
+} from "./js/format.js?v=202611012034";
+import { buildHistoryCsv } from "./js/history-csv.js?v=202611012034";
 import {
   buildLineAppUrl,
   getLiffEnvironment,
@@ -35,19 +35,19 @@ import {
   loadCachedProfile,
   loginWithLine,
   safelyGetLiffContext
-} from "./js/liff.js?v=202610291748";
+} from "./js/liff.js?v=202611012034";
 import {
   encodeBase64Url,
   packWorkoutDraft,
   readPackedWorkout,
   unpackWorkoutDraft
-} from "./js/link.js?v=202610291748";
+} from "./js/link.js?v=202611012034";
 import {
   deepClone,
   generateId,
   getTodayLocalDate,
   seasonal
-} from "./js/page.js?v=202610291748";
+} from "./js/page.js?v=202611012034";
 import {
   APP_CONFIG,
   DEFAULT_THEME,
@@ -56,20 +56,20 @@ import {
   MAX_HISTORY_ITEMS,
   MAX_MENUS,
   STORAGE_KEYS
-} from "./js/settings.js?v=202610291748";
+} from "./js/settings.js?v=202611012034";
 import {
   createApiWorkoutRepository,
   createLocalStorageMenuRepository,
   createLocalStorageWorkoutRepository
-} from "./js/store.js?v=202610291748";
-import { startOfWeek, weekStreak } from "./js/streak.js?v=202610291748";
+} from "./js/store.js?v=202611012034";
+import { startOfWeek, weekStreak } from "./js/streak.js?v=202611012034";
 import {
   applyTheme,
   getFlexTheme as buildFlexTheme,
   loadThemePreference,
   normalizeHexColor,
   saveThemePreference
-} from "./js/theme.js?v=202610291748";
+} from "./js/theme.js?v=202611012034";
 import {
   buildMenuFromWorkout,
   calculateWorkout,
@@ -90,7 +90,7 @@ import {
   sanitizeWorkout as sanitizeWorkoutModel,
   summarizeMenu,
   TEXT_LIMITS
-} from "./js/workout.js?v=202610291748";
+} from "./js/workout.js?v=202611012034";
 
 (function () {
 
@@ -611,7 +611,7 @@ import {
     replaceWorkout(hydrateWorkout(restored), "前の記録を入れました。重さ・回数を直して送れます。");
   }
 
-  // 「カードで送る」を押したとき。送り先を選んでいるあいだにもう一度押されても、送る画面は1つだけ
+  // 「カードでおくるん」を押したとき。送り先を選んでいるあいだにもう一度押されても、送る画面は1つだけ
   async function shareWorkout(workout) {
     if (sharing) {
       return;
@@ -1455,7 +1455,7 @@ import {
     }
     const show = appState.liff.initialized && !appState.liff.shareAvailable && !isDebugModeEnabled();
     elements.lineHelp.hidden = !show;
-    // 送れないときは「カードで送る」を出さない（押しても送れないので、案内のログイン／LINE 版だけにする）
+    // 送れないときは「カードでおくるん」を出さない（押しても送れないので、案内のログイン／LINE 版だけにする）
     elements.shareButton.hidden = show;
     if (!show) {
       return;

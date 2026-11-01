@@ -3,7 +3,7 @@
 import {
   generateId,
   getTodayLocalDate
-} from "./page.js?v=202610291748";
+} from "./page.js?v=202611012034";
 
 // 「サンプルを入れる」の見本の記録を返す
 export function buildSampleWorkout(options) {
