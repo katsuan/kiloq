@@ -3,12 +3,12 @@
 import {
   buildWorkoutFlexMessage as buildWorkoutFlexPayload,
   getCreditText
-} from "./js/card.js?v=202611021549";
+} from "./js/card.js?v=202611021558";
 import {
   EXERCISE_CATALOG,
   MENU_PRESETS,
   MUSCLE_FILTERS
-} from "./js/catalog.js?v=202611021549";
+} from "./js/catalog.js?v=202611021558";
 import {
   renderButton,
   renderChip,
@@ -17,18 +17,18 @@ import {
   renderField,
   renderSheet,
   renderStartButton
-} from "./js/components.js?v=202611021549";
+} from "./js/components.js?v=202611021558";
 import {
   buildSampleWorkout,
   mockRanking
-} from "./js/fixtures.js?v=202611021549";
+} from "./js/fixtures.js?v=202611021558";
 import {
   cssEscape,
   escapeHtml,
   formatLocaleMetric
-} from "./js/format.js?v=202611021549";
-import { buildHistoryCsv } from "./js/history-csv.js?v=202611021549";
-import { aheadOf, amountLabel, compareWeight, LANDMARKS, marksFor, newlyPassed, progressOf, ratioLabel, shareLabel, syncLifted, weightLabel } from "./js/lifted.js?v=202611021549";
+} from "./js/format.js?v=202611021558";
+import { buildHistoryCsv } from "./js/history-csv.js?v=202611021558";
+import { aheadOf, amountLabel, compareWeight, LANDMARKS, marksFor, newlyPassed, progressOf, ratioLabel, shareLabel, standingLabel, syncLifted, weightLabel } from "./js/lifted.js?v=202611021558";
 import {
   buildLineAppUrl,
   getLiffEnvironment,
@@ -36,19 +36,19 @@ import {
   loadCachedProfile,
   loginWithLine,
   safelyGetLiffContext
-} from "./js/liff.js?v=202611021549";
+} from "./js/liff.js?v=202611021558";
 import {
   encodeBase64Url,
   packWorkoutDraft,
   readPackedWorkout,
   unpackWorkoutDraft
-} from "./js/link.js?v=202611021549";
+} from "./js/link.js?v=202611021558";
 import {
   deepClone,
   generateId,
   getTodayLocalDate,
   seasonal
-} from "./js/page.js?v=202611021549";
+} from "./js/page.js?v=202611021558";
 import {
   APP_CONFIG,
   DEFAULT_THEME,
@@ -57,22 +57,22 @@ import {
   MAX_HISTORY_ITEMS,
   MAX_MENUS,
   STORAGE_KEYS
-} from "./js/settings.js?v=202611021549";
+} from "./js/settings.js?v=202611021558";
 import {
   createApiWorkoutRepository,
   createLocalStorageMenuRepository,
   createLocalStorageWorkoutRepository,
   loadLifted,
   saveLifted
-} from "./js/store.js?v=202611021549";
-import { startOfWeek, weekStreak } from "./js/streak.js?v=202611021549";
+} from "./js/store.js?v=202611021558";
+import { startOfWeek, weekStreak } from "./js/streak.js?v=202611021558";
 import {
   applyTheme,
   getFlexTheme as buildFlexTheme,
   loadThemePreference,
   normalizeHexColor,
   saveThemePreference
-} from "./js/theme.js?v=202611021549";
+} from "./js/theme.js?v=202611021558";
 import {
   buildMenuFromWorkout,
   calculateWorkout,
@@ -93,7 +93,7 @@ import {
   sanitizeWorkout as sanitizeWorkoutModel,
   summarizeMenu,
   TEXT_LIMITS
-} from "./js/workout.js?v=202611021549";
+} from "./js/workout.js?v=202611021558";
 
 (function () {
 
@@ -831,22 +831,34 @@ import {
     const total = liftedTotal();
     const progress = progressOf(total);
     const percent = Math.round(progress.progress * 100);
-    // 越えた目じるしは、新しい3つだけ（それより前は1行にまとめる）
-    const marks = marksFor(total).slice(0, progress.passedCount).slice(-3);
-    const older = progress.passedCount - marks.length;
+    // 目じるし1行：押すと、いまの合計とくらべた数（「いま 3.2 頭分」「いま 79％」）が開く
+    const markRow = function (className, prefix, mark, extra) {
+      return (
+        '<li class="' + className + '"><details class="lifted-row"><summary>' +
+        '<span class="lifted-mark">' + escapeHtml(prefix + mark.icon + " " + mark.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(mark.kg)) + "</span>" +
+        (extra || "") +
+        '</summary><p class="lifted-now">' + escapeHtml(standingLabel(total, mark)) + "</p></details></li>"
+      );
+    };
+    // 越えた目じるしは新しい3つ。それより前は「ほかに ◯ 個を越えました」を押すと開く
+    const passed = marksFor(total).slice(0, progress.passedCount);
+    const marks = passed.slice(-3);
+    const older = passed.slice(0, passed.length - marks.length);
     const rows = [];
-    if (older > 0) rows.push('<li class="is-passed is-older"><span class="lifted-mark">✅ ほかに ' + older + " 個を越えました</span></li>");
+    if (older.length) {
+      rows.push(
+        '<li class="is-passed is-older"><details class="lifted-older"><summary><span class="lifted-mark">✅ ほかに ' + older.length + " 個を越えました</span></summary>" +
+          '<ol class="lifted-marks">' + older.map(function (mark) { return markRow("is-passed", "✅ ", mark); }).join("") + "</ol></details></li>"
+      );
+    }
     marks.forEach(function (mark) {
-      rows.push('<li class="is-passed"><span class="lifted-mark">✅ ' + escapeHtml(mark.icon + " " + mark.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(mark.kg)) + "</span></li>");
+      rows.push(markRow("is-passed", "✅ ", mark));
     });
-    rows.push(
-      '<li class="is-next"><span class="lifted-mark">🎯 ' + escapeHtml(progress.next.icon + " " + progress.next.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(progress.next.kg)) + "</span>" +
-        '<span class="lifted-rest">' + escapeHtml(restLabel(total, progress)).replace(/^(あと |いま )(.*)$/, "$1<b>$2</b>") + "</span></li>"
-    );
+    rows.push(markRow("is-next", "🎯 ", progress.next, '<span class="lifted-rest">' + escapeHtml(restLabel(total, progress)).replace(/^(あと |いま )(.*)$/, "$1<b>$2</b>") + "</span>"));
     // その先：よく知られた大きな物（東京タワー・ピラミッド・月・地球…）は見せ、あいだの細かい目じるしはかくす
     aheadOf(total).forEach(function (row) {
       if (row.mark) {
-        rows.push('<li class="is-ahead"><span class="lifted-mark">' + escapeHtml(row.mark.icon + " " + row.mark.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(row.mark.kg)) + "</span></li>");
+        rows.push(markRow("is-ahead", "", row.mark));
       } else {
         rows.push('<li class="is-locked"><span class="lifted-mark">🔒 この間に、あと ' + row.locked + " 個</span></li>");
       }
@@ -857,7 +869,7 @@ import {
       '  <p class="lifted-total"><b>' + escapeHtml(formatKg(total)) + "</b>" + (total > 0 ? '<span class="lifted-compare">＝ ' + escapeHtml(compareLabel(total)) + "</span>" : "") + "</p>",
       '  <div class="lifted-bar" aria-hidden="true"><span style="width:' + percent + '%"></span></div>',
       '  <ol class="lifted-marks">' + rows.join("") + "</ol>",
-      '  <p class="ls-hint">重さ × 回数の合計です（自重のセットは入りません）。記録を消しても、この合計は減りません（この端末で送った記録から）。</p>',
+      '  <p class="ls-hint">目じるしを押すと、いまの合計とくらべられます。重さ × 回数の合計です（自重のセットは入りません）。記録を消しても、この合計は減りません（この端末で送った記録から）。</p>',
       "</section>"
     ].join("");
   }

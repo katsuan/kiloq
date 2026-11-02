@@ -256,12 +256,57 @@
 }
 
 .lifted-marks li {
+  border-bottom: 1px solid var(--ls-line);
+}
+
+/* 目じるし1行（押すと「いま ◯ 頭分」「いま ◯％」が開く）。押せる高さは 44px 近く */
+.lifted-marks summary {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0 8px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--ls-line);
+  padding: 10px 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.lifted-marks summary::-webkit-details-marker {
+  display: none;
+}
+
+.lifted-marks summary:focus-visible {
+  outline: 2px solid var(--ls-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.lifted-now {
+  margin: 0 0 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--ls-surface-sub);
+  border-left: 3px solid var(--ls-accent);
+  color: var(--ls-text);
+  font-weight: 700;
+}
+
+/* 「ほかに ◯ 個を越えました」：開くと、前に越えた目じるしの一覧（▾ が回る） */
+.lifted-older > summary .lifted-mark::after {
+  content: " ▾";
+  display: inline-block;
+  transition: transform 0.15s;
+}
+
+.lifted-older[open] > summary .lifted-mark::after {
+  transform: rotate(180deg);
+}
+
+.lifted-older > .lifted-marks {
+  margin: 0 0 4px 12px;
+}
+
+.lifted-older > .lifted-marks li:last-child {
+  border-bottom: 0;
 }
 
 .lifted-mark {
@@ -296,7 +341,7 @@
 .lifted-marks .is-locked {
   color: var(--ls-subtext);
   font-size: 0.8rem;
-  padding: 2px 0;
+  padding: 4px 0;
 }
 
 /* 送る帯の上：今日の重さと、次の目じるしまでの棒 */

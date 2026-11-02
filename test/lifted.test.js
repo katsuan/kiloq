@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert";
 
-const { aheadOf, amountLabel, bigNumber, compareWeight, COUNTED_MAX, LANDMARKS, liftedIn, marksFor, newlyPassed, progressOf, ratioLabel, shareLabel, syncLifted, weightLabel } = await import("../js/lifted.js");
+const { aheadOf, amountLabel, standingLabel, bigNumber, compareWeight, COUNTED_MAX, LANDMARKS, liftedIn, marksFor, newlyPassed, progressOf, ratioLabel, shareLabel, syncLifted, weightLabel } = await import("../js/lifted.js");
 
 test("はじめては、今ある記録を1回だけ数える。もう一度合わせても増えない（2回入らない）", () => {
   const first = syncLifted(null, [{ id: "a", kg: 1000 }, { id: "b", kg: 500.5 }]);
@@ -178,4 +178,13 @@ test("先の目じるし：よく知られた大きな物は見せ、あいだ�
   assert.equal(progressOf(4500000).next.name, "エッフェル塔");
   assert.ok(!names(aheadOf(4500000)).includes("エッフェル塔"));
   assert.deepEqual(aheadOf(LANDMARKS[LANDMARKS.length - 1].kg * 1.5), []); // 地球を越えたら先はない
+});
+
+test("目じるしを押したときの言い方：越えていれば「いま ◯ 頭分」、まだなら「いま ◯％」「◯分の1」", () => {
+  const find = (name) => LANDMARKS.find((m) => m.name === name);
+  assert.equal(standingLabel(19200, find("ゾウ")), "いま 3.2 頭分");
+  assert.equal(standingLabel(6000, find("ゾウ")), "いま 1 頭分");
+  assert.equal(standingLabel(4740, find("ゾウ")), "いま 79％");
+  assert.equal(standingLabel(12000, find("地球")), "いま 5垓分の1");
+  assert.equal(standingLabel(0, find("ゾウ")), "まだ 0 kg");
 });

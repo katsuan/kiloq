@@ -186,6 +186,17 @@ export function aheadOf(totalKg) {
   return rows;
 }
 
+/**
+ * いまの合計を、1つの目じるしとくらべた言い方（表の目じるしを押したとき）：越えていれば「いま 3.2 頭分」、
+ * まだなら「いま 79％」「いま 1億分の1」。0 kg なら「まだ 0 kg」
+ */
+export function standingLabel(totalKg, mark) {
+  const v = Math.max(0, Number(totalKg) || 0);
+  if (v <= 0) return "まだ 0 kg";
+  if (v >= mark.kg) return "いま " + ratioLabel(v / mark.kg) + " " + mark.count + "分";
+  return "いま " + shareLabel(v, mark.kg);
+}
+
 // 合計が before から after に増えたとき、新しく越えた目じるし（いちばん重いもの）。越えていなければ null
 export function newlyPassed(beforeKg, afterKg) {
   const a = progressOf(beforeKg).passed;
