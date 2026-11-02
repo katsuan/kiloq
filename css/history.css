@@ -200,55 +200,139 @@
   font-size: 0.9rem;
 }
 
-/* これまでに持ち上げた重さ（山登り）。草グラフの下 */
-.climb {
+/* これまでに持ち上げた重さと、重さの目じるしの表。草グラフの下 */
+.lifted {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   margin-top: 14px;
   padding-top: 12px;
   border-top: 1px solid var(--ls-line);
 }
 
-.climb p {
+.lifted p {
   margin: 0;
 }
 
-.climb-title {
+.lifted-title {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--ls-subtext);
 }
 
-.climb-total b {
+.lifted-total b {
   font-size: 1.4rem;
 }
 
-.climb-height {
+.lifted-compare {
   margin-left: 8px;
   font-weight: 700;
 }
 
-.climb-bar {
+/* 次の目じるしまでの棒（シートと送る帯で同じ形） */
+.lifted-bar,
+.goal-bar {
+  display: block;
   height: 8px;
   border-radius: 999px;
   background: var(--ls-accent-soft);
   overflow: hidden;
 }
 
-.climb-bar span {
+.lifted-bar span,
+.goal-bar span {
   display: block;
   height: 100%;
   border-radius: inherit;
   background: var(--ls-accent);
 }
 
-.climb-next {
+.lifted-marks {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
   font-size: 0.9rem;
 }
 
-.climb-passed {
-  font-size: 0.85rem;
+.lifted-marks li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--ls-line);
+}
+
+.lifted-mark {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.lifted-kg {
   color: var(--ls-subtext);
+  font-size: 0.85rem;
+}
+
+.lifted-marks .is-passed {
+  color: var(--ls-subtext);
+}
+
+.lifted-marks .is-next {
+  font-weight: 700;
+}
+
+.lifted-rest {
+  flex-basis: 100%;
+  font-weight: 400;
+  color: var(--ls-text);
+}
+
+.lifted-marks .is-locked {
+  color: var(--ls-subtext);
+  font-size: 0.85rem;
+  border-bottom: 0;
+}
+
+/* 送る帯の上：今日の重さと、次の目じるしまでの棒 */
+.goal {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+}
+
+.goal p {
+  margin: 0;
+}
+
+.goal-today {
+  font-weight: 700;
+}
+
+.goal-next {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ls-subtext);
+}
+
+.goal-name {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.goal-bar {
+  flex: 1 1 60px;
+  min-width: 40px;
+}
+
+.goal-rest {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .history-lifted {

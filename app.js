@@ -3,12 +3,12 @@
 import {
   buildWorkoutFlexMessage as buildWorkoutFlexPayload,
   getCreditText
-} from "./js/card.js?v=202611021518";
+} from "./js/card.js?v=202611021535";
 import {
   EXERCISE_CATALOG,
   MENU_PRESETS,
   MUSCLE_FILTERS
-} from "./js/catalog.js?v=202611021518";
+} from "./js/catalog.js?v=202611021535";
 import {
   renderButton,
   renderChip,
@@ -17,18 +17,18 @@ import {
   renderField,
   renderSheet,
   renderStartButton
-} from "./js/components.js?v=202611021518";
+} from "./js/components.js?v=202611021535";
 import {
   buildSampleWorkout,
   mockRanking
-} from "./js/fixtures.js?v=202611021518";
+} from "./js/fixtures.js?v=202611021535";
 import {
   cssEscape,
   escapeHtml,
   formatLocaleMetric
-} from "./js/format.js?v=202611021518";
-import { buildHistoryCsv } from "./js/history-csv.js?v=202611021518";
-import { climbOf, newlyPassed, syncLifted } from "./js/lifted.js?v=202611021518";
+} from "./js/format.js?v=202611021535";
+import { buildHistoryCsv } from "./js/history-csv.js?v=202611021535";
+import { compareWeight, LANDMARKS, newlyPassed, progressOf, ratioLabel, syncLifted, weightLabel } from "./js/lifted.js?v=202611021535";
 import {
   buildLineAppUrl,
   getLiffEnvironment,
@@ -36,19 +36,19 @@ import {
   loadCachedProfile,
   loginWithLine,
   safelyGetLiffContext
-} from "./js/liff.js?v=202611021518";
+} from "./js/liff.js?v=202611021535";
 import {
   encodeBase64Url,
   packWorkoutDraft,
   readPackedWorkout,
   unpackWorkoutDraft
-} from "./js/link.js?v=202611021518";
+} from "./js/link.js?v=202611021535";
 import {
   deepClone,
   generateId,
   getTodayLocalDate,
   seasonal
-} from "./js/page.js?v=202611021518";
+} from "./js/page.js?v=202611021535";
 import {
   APP_CONFIG,
   DEFAULT_THEME,
@@ -57,22 +57,22 @@ import {
   MAX_HISTORY_ITEMS,
   MAX_MENUS,
   STORAGE_KEYS
-} from "./js/settings.js?v=202611021518";
+} from "./js/settings.js?v=202611021535";
 import {
   createApiWorkoutRepository,
   createLocalStorageMenuRepository,
   createLocalStorageWorkoutRepository,
   loadLifted,
   saveLifted
-} from "./js/store.js?v=202611021518";
-import { startOfWeek, weekStreak } from "./js/streak.js?v=202611021518";
+} from "./js/store.js?v=202611021535";
+import { startOfWeek, weekStreak } from "./js/streak.js?v=202611021535";
 import {
   applyTheme,
   getFlexTheme as buildFlexTheme,
   loadThemePreference,
   normalizeHexColor,
   saveThemePreference
-} from "./js/theme.js?v=202611021518";
+} from "./js/theme.js?v=202611021535";
 import {
   buildMenuFromWorkout,
   calculateWorkout,
@@ -93,7 +93,7 @@ import {
   sanitizeWorkout as sanitizeWorkoutModel,
   summarizeMenu,
   TEXT_LIMITS
-} from "./js/workout.js?v=202611021518";
+} from "./js/workout.js?v=202611021535";
 
 (function () {
 
@@ -241,6 +241,7 @@ import {
     elements.tabRanking = document.getElementById("tab-ranking");
     elements.tabRankingButton = document.getElementById("tab-button-ranking");
     elements.actionBar = document.getElementById("action-bar");
+    elements.goalBar = document.getElementById("goal-bar");
     elements.copyJsonButton = document.getElementById("copy-json-button");
     elements.shareButton = document.getElementById("share-button");
     elements.lineHelp = document.getElementById("line-help");
@@ -705,7 +706,9 @@ import {
     const liftedBefore = liftedTotal();
     syncLiftedTotal();
     const reached = newlyPassed(liftedBefore, liftedTotal());
-    const sentTitle = "送りました" + (reached ? "　⛰️ " + reached.name + "（" + formatMeters(reached.m) + "）を越えました！" : "");
+    // 送ったあとのシートの見出し：今日の重さ（「今日 5,400 kg ＝ 🐘 ゾウ 0.9 頭分」）と、越えた目じるし
+    const sentLine = weightLine(shareableWorkout);
+    const sentTitle = "送りました" + (sentLine ? "　" + sentLine : "") + (reached ? "　🎉 " + reached.icon + " " + reached.name + "を越えました！" : "");
     const kept = new Set(appState.history.map((item) => item.workoutId));
     const dropped = before.filter((item) => !kept.has(item.workoutId));
     renderHistory();
@@ -713,6 +716,7 @@ import {
     // 送った記録は、次に開いたときの「前回の続き」にしない
     sentDraft = JSON.stringify(packWorkoutDraft(appState.workout));
     keepLocalDraft();
+    renderGoalBar(); // 送った記録はもう合計に入ったので、入力中のぶんとして足さない
     // 送ったあと：続けて別のトークにも・閉じる・もう少し作る（Q キット）
     if (window.LineShareUI && typeof window.LineShareUI.afterSent === "function") {
       window.LineShareUI.afterSent({
@@ -723,7 +727,7 @@ import {
         }
       });
     } else {
-      notify(reached ? sentTitle : seasonal("送りました。"), "info");
+      notify(sentLine || reached ? sentTitle : seasonal("送りました。"), "info");
     }
     if (dropped.length) {
       const name = [formatShortDate(dropped[0].date), String(dropped[0].title || "").trim()].filter(Boolean).join(" ");
@@ -764,33 +768,81 @@ import {
     return Math.round(kg).toLocaleString("ja-JP") + " kg";
   }
 
-  // 「333 m」（1,000 m からは「1,234 m」、10 m より下は 0.1 m まで）
-  function formatMeters(m) {
-    return (m < 10 ? String(Math.floor(m * 10) / 10) : Math.floor(m).toLocaleString("ja-JP")) + " m";
+  // 「🐘 ゾウ 0.9 頭分」（重さを、いちばん近い目じるしでくらべる。0 kg なら ""）
+  function compareLabel(kg) {
+    const c = compareWeight(kg);
+    return c ? c.mark.icon + " " + c.mark.name + " " + ratioLabel(c.ratio) + " " + c.mark.count + "分" : "";
+  }
+
+  // 1つの記録の重さの1行（「今日 5,400 kg ＝ 🐘 ゾウ 0.9 頭分」。今日でない日付なら「この記録」）。0 kg なら ""
+  function weightLine(workout) {
+    const kg = calculateWorkout(workout).totalVolume;
+    if (!(kg > 0)) return "";
+    return (workout.date === getTodayLocalDate() ? "今日" : "この記録") + " " + formatKg(kg) + " ＝ " + compareLabel(kg);
+  }
+
+  // 入力中の記録で、まだ合計に入っていない重さ（送り終えた記録はもう数えたので 0）
+  function pendingKg() {
+    const draft = packWorkoutDraft(appState.workout);
+    if (!draft || JSON.stringify(draft) === sentDraft) return 0;
+    return calculateWorkout(appState.workout).totalVolume || 0;
+  }
+
+  // 送る帯の上の1〜2行：今日の重さと、次の目じるしまでの棒（入力しているぶんも足して、送るとどこまで行くか）
+  function renderGoalBar() {
+    if (!elements.goalBar) return;
+    if (!FEATURE_FLAGS.enableLocalHistory) {
+      elements.goalBar.hidden = true;
+      return;
+    }
+    const today = weightLine(appState.workout);
+    const progress = progressOf(liftedTotal() + pendingKg());
+    const percent = Math.round(progress.progress * 100);
+    elements.goalBar.hidden = false;
+    elements.goalBar.innerHTML = [
+      today ? '<p class="goal-today">' + escapeHtml(today) + "</p>" : "",
+      '<p class="goal-next">',
+      '  <span class="goal-name">' + escapeHtml(progress.next.icon + " " + (progress.next.short || progress.next.name)) + "まで</span>",
+      '  <span class="goal-bar" aria-hidden="true"><span style="width:' + percent + '%"></span></span>',
+      '  <span class="goal-rest">あと <b>' + escapeHtml(formatKg(progress.toNextKg)) + "</b></span>",
+      "</p>"
+    ].join("");
   }
 
   // 履歴の画面の1行：これまでの合計（まだ 0 kg なら出さない）
   function renderLiftedLine() {
     const total = liftedTotal();
     if (!(total > 0)) return "";
-    return '<p class="ls-hint small history-lifted">⛰️ これまでの合計 <b>' + escapeHtml(formatKg(total)) + "</b>（標高 " + escapeHtml(formatMeters(climbOf(total).meters)) + "）。記録を消しても減りません。</p>";
+    return '<p class="ls-hint small history-lifted">🏋️ これまでの合計 <b>' + escapeHtml(formatKg(total)) + "</b>（" + escapeHtml(compareLabel(total)) + "）。記録を消しても減りません。</p>";
   }
 
-  // 「あなたの記録」のシートの山登り：合計の重さ・高さ・次の目じるしまでの棒
-  function renderClimb() {
+  // 「あなたの記録」のシート：これまでの合計・次の目じるしまでの棒・重さの目じるしの表（越えたものに ✅、次だけ「あと ◯ kg」、その先はかくす）
+  function renderLifted() {
     if (!FEATURE_FLAGS.enableLocalHistory) return "";
     const total = liftedTotal();
-    const climb = climbOf(total);
-    const percent = Math.round(climb.progress * 100);
+    const progress = progressOf(total);
+    const percent = Math.round(progress.progress * 100);
+    const marks = LANDMARKS.slice(0, Math.min(progress.passedCount, LANDMARKS.length));
+    const hidden = Math.max(0, LANDMARKS.length - progress.passedCount - 1);
+    const rows = marks.map(function (mark) {
+      return '<li class="is-passed"><span class="lifted-mark">✅ ' + escapeHtml(mark.icon + " " + mark.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(mark.kg)) + "</span></li>";
+    });
+    // いちばん上を越えたあと（「タイタニック号 2隻分」…）は、越えたいちばん上だけ1行で
+    if (progress.passedCount > LANDMARKS.length) {
+      rows.push('<li class="is-passed"><span class="lifted-mark">✅ ' + escapeHtml(progress.passed.icon + " " + progress.passed.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(progress.passed.kg)) + "</span></li>");
+    }
+    rows.push(
+      '<li class="is-next"><span class="lifted-mark">🎯 ' + escapeHtml(progress.next.icon + " " + progress.next.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(progress.next.kg)) + "</span>" +
+        '<span class="lifted-rest">あと <b>' + escapeHtml(formatKg(progress.toNextKg)) + "</b></span></li>"
+    );
+    if (hidden) rows.push('<li class="is-locked"><span class="lifted-mark">🔒 この先に、あと ' + hidden + " 個（越えると見えます）</span></li>");
     return [
-      '<section class="climb" aria-label="これまでに持ち上げた重さ">',
-      '  <p class="climb-title">⛰️ これまでに持ち上げた重さ</p>',
-      '  <p class="climb-total"><b>' + escapeHtml(formatKg(total)) + '</b><span class="climb-height">＝ 標高 ' + escapeHtml(formatMeters(climb.meters)) + "</span></p>",
-      '  <div class="climb-bar" aria-hidden="true"><span style="width:' + percent + '%"></span></div>',
-      climb.passed ? '  <p class="climb-passed">🚩 ' + escapeHtml(climb.passed.name) + "（" + escapeHtml(formatMeters(climb.passed.m)) + "）を越えました</p>" : "",
-      '  <p class="climb-next">次は ' + escapeHtml(climb.next.name) + "（" + escapeHtml(formatMeters(climb.next.m)) + "）まで " +
-        '<span class="ls-nowrap">あと <b>' + escapeHtml(formatKg(climb.toNextKg)) + "</b></span></p>",
-      '  <p class="ls-hint">1 kg を 1 cm として、高さにしています。記録を消しても、この合計は減りません（この端末で送った記録から）。</p>',
+      '<section class="lifted" aria-label="これまでに持ち上げた重さ">',
+      '  <p class="lifted-title">🏋️ これまでに持ち上げた重さ</p>',
+      '  <p class="lifted-total"><b>' + escapeHtml(formatKg(total)) + "</b>" + (total > 0 ? '<span class="lifted-compare">＝ ' + escapeHtml(compareLabel(total)) + "</span>" : "") + "</p>",
+      '  <div class="lifted-bar" aria-hidden="true"><span style="width:' + percent + '%"></span></div>',
+      '  <ol class="lifted-marks">' + rows.join("") + "</ol>",
+      '  <p class="ls-hint">重さ × 回数の合計です（自重のセットは入りません）。記録を消しても、この合計は減りません（この端末で送った記録から）。</p>',
       "</section>"
     ].join("");
   }
@@ -876,6 +928,7 @@ import {
   // 送信プレビュー（送るカードの見本・この記録の集計）を描きなおす。作りかけも端末に残す
   function renderPreview() {
     keepLocalDraft(); // 入力が変わるたびに呼ばれるので、ここで作りかけを端末に残す
+    renderGoalBar(); // 送る帯の上の「今日の重さ」と次の目じるしまでの棒も
     const calculatedWorkout = calculateWorkout(appState.workout);
     const validation = validateWorkout(appState.workout);
     const shareableWorkout = validation.workout;
@@ -1497,6 +1550,7 @@ import {
     }
 
     renderLineHelp();
+    renderGoalBar();
 
     elements.copyJsonButton.hidden = !isDebugModeEnabled();
     elements.copyJsonButton.textContent = appState.liff.shareAvailable
@@ -2113,7 +2167,7 @@ import {
       body: [
         renderLoginRows(),
         renderGrass(),
-        renderClimb(),
+        renderLifted(),
         // 設定はページの下の「⚙️ 設定」に1つ（Q のツールの決まり。q-oqrn の ux.md A7）
         renderButton({ label: "⚙️ 設定（週のはじまり・色）", action: "open-settings-fold" })
       ].join("")

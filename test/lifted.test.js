@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert";
 
-const { climbOf, COUNTED_MAX, liftedIn, newlyPassed, syncLifted } = await import("../js/lifted.js");
+const { compareWeight, COUNTED_MAX, LANDMARKS, liftedIn, marksFor, newlyPassed, progressOf, ratioLabel, syncLifted, weightLabel } = await import("../js/lifted.js");
 
 test("はじめては、今ある記録を1回だけ数える。もう一度合わせても増えない（2回入らない）", () => {
   const first = syncLifted(null, [{ id: "a", kg: 1000 }, { id: "b", kg: 500.5 }]);
@@ -64,32 +64,63 @@ test("端末から読んだ形がおかしいときは使わない（同じ id �
   assert.deepEqual(liftedIn({ total: 10, counted: [["a", 5], ["a", 7], [1, 2], "x"] }), { total: 10, counted: [["a", 5]] });
 });
 
-test("山の高さ：1 kg が 1 cm。次の目じるしまでの kg と、進みぐあい", () => {
-  const start = climbOf(0);
-  assert.equal(start.meters, 0);
-  assert.equal(start.passed, null);
-  assert.equal(start.next.name, "奈良の大仏");
-  assert.equal(start.toNextKg, 1500);
-  const tower = climbOf(33300);
-  assert.equal(tower.passed.name, "東京タワー");
-  assert.equal(tower.next.name, "高尾山");
-  assert.equal(tower.progress, 0);
-  const fuji = climbOf(377600);
-  assert.equal(fuji.passed.name, "富士山");
-  assert.equal(fuji.next.name, "キリマンジャロ");
+test("目じるしは軽い順で、1回分（3〜6 t）でも最初から3つ越えられる", () => {
+  for (let i = 1; i < LANDMARKS.length; i += 1) assert.ok(LANDMARKS[i].kg > LANDMARKS[i - 1].kg, LANDMARKS[i].name);
+  assert.equal(progressOf(3000).passedCount, 4); // パンダ・ヒグマ・乳牛・乗用車
+  assert.equal(progressOf(1000).passedCount, 3);
 });
 
-test("エベレストを越えたら「エベレスト 2つ分」「3つ分」…", () => {
-  const over = climbOf(884900 + 100);
-  assert.equal(over.passed.name, "エベレスト");
-  assert.equal(over.next.name, "エベレスト 2つ分");
-  assert.equal(over.next.m, 8849 * 2);
-  assert.equal(climbOf(884900 * 2).next.name, "エベレスト 3つ分");
+test("次の目じるしまでの kg と、進みぐあい", () => {
+  const start = progressOf(0);
+  assert.equal(start.passed, null);
+  assert.equal(start.next.name, "パンダ");
+  assert.equal(start.toNextKg, 100);
+  assert.equal(start.progress, 0);
+  const car = progressOf(1500);
+  assert.equal(car.passed.name, "乗用車");
+  assert.equal(car.next.name, "ゾウ");
+  assert.equal(car.toNextKg, 4500);
+  assert.equal(car.progress, 0);
+  const half = progressOf(3750);
+  assert.equal(half.progress, 0.5);
+  assert.equal(progressOf(4799.5).toNextKg, 1200.5);
+});
+
+test("いちばん上（タイタニック号）を越えたら「タイタニック号 2隻分」「3隻分」…", () => {
+  const top = LANDMARKS[LANDMARKS.length - 1];
+  const over = progressOf(top.kg + 1);
+  assert.equal(over.passed.name, "タイタニック号");
+  assert.equal(over.next.name, "タイタニック号 2隻分");
+  assert.equal(over.next.kg, top.kg * 2);
+  assert.equal(progressOf(top.kg * 2).next.name, "タイタニック号 3隻分");
+  assert.equal(marksFor(0).length, LANDMARKS.length);
 });
 
 test("新しく越えた目じるし（送ったあとの知らせ）", () => {
   assert.equal(newlyPassed(1000, 1400), null);
-  assert.equal(newlyPassed(1000, 1600).name, "奈良の大仏");
-  assert.equal(newlyPassed(30000, 61000).name, "高尾山"); // 2つ越えたら高いほう
-  assert.equal(newlyPassed(1600, 1600), null);
+  assert.equal(newlyPassed(1000, 1600).name, "乗用車");
+  assert.equal(newlyPassed(1000, 7000).name, "ゾウ"); // 2つ越えたら重いほう
+  assert.equal(newlyPassed(6000, 6000), null);
+  assert.equal(newlyPassed(0, 100).name, "パンダ"); // ちょうどで越えた
+});
+
+test("今日の重さは、1つ分にいちばん近い目じるしでくらべる（「ゾウ 0.9 頭分」）", () => {
+  const elephant = compareWeight(5400);
+  assert.equal(elephant.mark.name, "ゾウ");
+  assert.equal(ratioLabel(elephant.ratio), "0.9");
+  const car = compareWeight(1600);
+  assert.equal(car.mark.name, "乗用車");
+  assert.equal(ratioLabel(car.ratio), "1.1");
+  assert.equal(compareWeight(6000).mark.name, "ゾウ");
+  assert.equal(compareWeight(50).mark.name, "パンダ"); // いちばん軽いものより軽い
+  assert.equal(ratioLabel(compareWeight(50).ratio), "0.5");
+  assert.equal(ratioLabel(compareWeight(LANDMARKS[LANDMARKS.length - 1].kg * 12).ratio), "12"); // 10 からは整数
+  assert.equal(compareWeight(0), null);
+});
+
+test("目じるしの重さの書き方（「約」をつける）", () => {
+  assert.equal(weightLabel(700), "約 700 kg");
+  assert.equal(weightLabel(6000), "約 6 t");
+  assert.equal(weightLabel(4000000), "約 4,000 t");
+  assert.equal(weightLabel(50000000), "約 5万 t");
 });
