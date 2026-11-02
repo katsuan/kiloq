@@ -3,12 +3,12 @@
 import {
   buildWorkoutFlexMessage as buildWorkoutFlexPayload,
   getCreditText
-} from "./js/card.js?v=202611021547";
+} from "./js/card.js?v=202611021549";
 import {
   EXERCISE_CATALOG,
   MENU_PRESETS,
   MUSCLE_FILTERS
-} from "./js/catalog.js?v=202611021547";
+} from "./js/catalog.js?v=202611021549";
 import {
   renderButton,
   renderChip,
@@ -17,18 +17,18 @@ import {
   renderField,
   renderSheet,
   renderStartButton
-} from "./js/components.js?v=202611021547";
+} from "./js/components.js?v=202611021549";
 import {
   buildSampleWorkout,
   mockRanking
-} from "./js/fixtures.js?v=202611021547";
+} from "./js/fixtures.js?v=202611021549";
 import {
   cssEscape,
   escapeHtml,
   formatLocaleMetric
-} from "./js/format.js?v=202611021547";
-import { buildHistoryCsv } from "./js/history-csv.js?v=202611021547";
-import { aheadOf, amountLabel, compareWeight, LANDMARKS, marksFor, newlyPassed, progressOf, ratioLabel, shareLabel, syncLifted, weightLabel } from "./js/lifted.js?v=202611021547";
+} from "./js/format.js?v=202611021549";
+import { buildHistoryCsv } from "./js/history-csv.js?v=202611021549";
+import { aheadOf, amountLabel, compareWeight, LANDMARKS, marksFor, newlyPassed, progressOf, ratioLabel, shareLabel, syncLifted, weightLabel } from "./js/lifted.js?v=202611021549";
 import {
   buildLineAppUrl,
   getLiffEnvironment,
@@ -36,19 +36,19 @@ import {
   loadCachedProfile,
   loginWithLine,
   safelyGetLiffContext
-} from "./js/liff.js?v=202611021547";
+} from "./js/liff.js?v=202611021549";
 import {
   encodeBase64Url,
   packWorkoutDraft,
   readPackedWorkout,
   unpackWorkoutDraft
-} from "./js/link.js?v=202611021547";
+} from "./js/link.js?v=202611021549";
 import {
   deepClone,
   generateId,
   getTodayLocalDate,
   seasonal
-} from "./js/page.js?v=202611021547";
+} from "./js/page.js?v=202611021549";
 import {
   APP_CONFIG,
   DEFAULT_THEME,
@@ -57,22 +57,22 @@ import {
   MAX_HISTORY_ITEMS,
   MAX_MENUS,
   STORAGE_KEYS
-} from "./js/settings.js?v=202611021547";
+} from "./js/settings.js?v=202611021549";
 import {
   createApiWorkoutRepository,
   createLocalStorageMenuRepository,
   createLocalStorageWorkoutRepository,
   loadLifted,
   saveLifted
-} from "./js/store.js?v=202611021547";
-import { startOfWeek, weekStreak } from "./js/streak.js?v=202611021547";
+} from "./js/store.js?v=202611021549";
+import { startOfWeek, weekStreak } from "./js/streak.js?v=202611021549";
 import {
   applyTheme,
   getFlexTheme as buildFlexTheme,
   loadThemePreference,
   normalizeHexColor,
   saveThemePreference
-} from "./js/theme.js?v=202611021547";
+} from "./js/theme.js?v=202611021549";
 import {
   buildMenuFromWorkout,
   calculateWorkout,
@@ -93,7 +93,7 @@ import {
   sanitizeWorkout as sanitizeWorkoutModel,
   summarizeMenu,
   TEXT_LIMITS
-} from "./js/workout.js?v=202611021547";
+} from "./js/workout.js?v=202611021549";
 
 (function () {
 
@@ -843,7 +843,7 @@ import {
       '<li class="is-next"><span class="lifted-mark">🎯 ' + escapeHtml(progress.next.icon + " " + progress.next.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(progress.next.kg)) + "</span>" +
         '<span class="lifted-rest">' + escapeHtml(restLabel(total, progress)).replace(/^(あと |いま )(.*)$/, "$1<b>$2</b>") + "</span></li>"
     );
-    // その先：よく知られた大きな物（東京タワー・富士山・月・地球…）は見せ、あいだの細かい目じるしはかくす
+    // その先：よく知られた大きな物（東京タワー・ピラミッド・月・地球…）は見せ、あいだの細かい目じるしはかくす
     aheadOf(total).forEach(function (row) {
       if (row.mark) {
         rows.push('<li class="is-ahead"><span class="lifted-mark">' + escapeHtml(row.mark.icon + " " + row.mark.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(row.mark.kg)) + "</span></li>");

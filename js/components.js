@@ -2,7 +2,7 @@
 // app.js から読む（import）
 import {
   escapeHtml
-} from "./format.js?v=202611021547";
+} from "./format.js?v=202611021549";
 
 // { 名前: 値 } を HTML の属性の文字（ name="値"）にして返す。値は書きかえて入れる
 function renderAttributes(attrs) {

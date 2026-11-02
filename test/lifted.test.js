@@ -163,10 +163,11 @@ test("遠い目じるしは「あと」の代わりに「◯％」「◯分の1�
 test("先の目じるし：よく知られた大きな物は見せ、あいだの細かい目じるしはまとめてかくす", () => {
   const names = (rows) => rows.map((r) => (r.mark ? r.mark.name : "🔒" + r.locked));
   const big = LANDMARKS.filter((m) => m.big).map((m) => m.name);
-  for (const name of ["東京タワー", "東京スカイツリー", "ギザの大ピラミッド", "富士山", "月", "地球"]) assert.ok(big.includes(name), name);
+  for (const name of ["東京タワー", "東京スカイツリー", "ギザの大ピラミッド", "月", "地球"]) assert.ok(big.includes(name), name);
   const start = names(aheadOf(0));
   assert.equal(start[start.length - 1], "地球"); // いちばん先の地球は、はじめから見える
-  assert.ok(start.includes("富士山") && start.includes("月"));
+  assert.ok(start.includes("ギザの大ピラミッド") && start.includes("月"));
+  assert.ok(!LANDMARKS.some((m) => m.name === "富士山")); // 重さの数字がないので入れない
   assert.ok(!start.includes("ゾウ")); // 細かい目じるしはかくす
   assert.ok(!start.some((n, i) => n.startsWith("🔒") && start[i + 1]?.startsWith("🔒"))); // かくした数は1行にまとまる
   // かくした数と見せた数を足すと、次より先の目じるしの数になる
