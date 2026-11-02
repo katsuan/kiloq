@@ -3,12 +3,12 @@
 import {
   buildWorkoutFlexMessage as buildWorkoutFlexPayload,
   getCreditText
-} from "./js/card.js?v=202611021535";
+} from "./js/card.js?v=202611021545";
 import {
   EXERCISE_CATALOG,
   MENU_PRESETS,
   MUSCLE_FILTERS
-} from "./js/catalog.js?v=202611021535";
+} from "./js/catalog.js?v=202611021545";
 import {
   renderButton,
   renderChip,
@@ -17,18 +17,18 @@ import {
   renderField,
   renderSheet,
   renderStartButton
-} from "./js/components.js?v=202611021535";
+} from "./js/components.js?v=202611021545";
 import {
   buildSampleWorkout,
   mockRanking
-} from "./js/fixtures.js?v=202611021535";
+} from "./js/fixtures.js?v=202611021545";
 import {
   cssEscape,
   escapeHtml,
   formatLocaleMetric
-} from "./js/format.js?v=202611021535";
-import { buildHistoryCsv } from "./js/history-csv.js?v=202611021535";
-import { compareWeight, LANDMARKS, newlyPassed, progressOf, ratioLabel, syncLifted, weightLabel } from "./js/lifted.js?v=202611021535";
+} from "./js/format.js?v=202611021545";
+import { buildHistoryCsv } from "./js/history-csv.js?v=202611021545";
+import { amountLabel, compareWeight, LANDMARKS, marksFor, newlyPassed, progressOf, ratioLabel, shareLabel, syncLifted, weightLabel } from "./js/lifted.js?v=202611021545";
 import {
   buildLineAppUrl,
   getLiffEnvironment,
@@ -36,19 +36,19 @@ import {
   loadCachedProfile,
   loginWithLine,
   safelyGetLiffContext
-} from "./js/liff.js?v=202611021535";
+} from "./js/liff.js?v=202611021545";
 import {
   encodeBase64Url,
   packWorkoutDraft,
   readPackedWorkout,
   unpackWorkoutDraft
-} from "./js/link.js?v=202611021535";
+} from "./js/link.js?v=202611021545";
 import {
   deepClone,
   generateId,
   getTodayLocalDate,
   seasonal
-} from "./js/page.js?v=202611021535";
+} from "./js/page.js?v=202611021545";
 import {
   APP_CONFIG,
   DEFAULT_THEME,
@@ -57,22 +57,22 @@ import {
   MAX_HISTORY_ITEMS,
   MAX_MENUS,
   STORAGE_KEYS
-} from "./js/settings.js?v=202611021535";
+} from "./js/settings.js?v=202611021545";
 import {
   createApiWorkoutRepository,
   createLocalStorageMenuRepository,
   createLocalStorageWorkoutRepository,
   loadLifted,
   saveLifted
-} from "./js/store.js?v=202611021535";
-import { startOfWeek, weekStreak } from "./js/streak.js?v=202611021535";
+} from "./js/store.js?v=202611021545";
+import { startOfWeek, weekStreak } from "./js/streak.js?v=202611021545";
 import {
   applyTheme,
   getFlexTheme as buildFlexTheme,
   loadThemePreference,
   normalizeHexColor,
   saveThemePreference
-} from "./js/theme.js?v=202611021535";
+} from "./js/theme.js?v=202611021545";
 import {
   buildMenuFromWorkout,
   calculateWorkout,
@@ -93,7 +93,7 @@ import {
   sanitizeWorkout as sanitizeWorkoutModel,
   summarizeMenu,
   TEXT_LIMITS
-} from "./js/workout.js?v=202611021535";
+} from "./js/workout.js?v=202611021545";
 
 (function () {
 
@@ -765,7 +765,15 @@ import {
 
   // 「1,234 kg」
   function formatKg(kg) {
-    return Math.round(kg).toLocaleString("ja-JP") + " kg";
+    return amountLabel(kg);
+  }
+
+  // 次の目じるしまでの言い方：近ければ「あと 1,200 kg」、とほうもなく遠ければ「いま 月の 1億分の1」（あとの数が大きすぎて実感がないので）
+  // short なら目じるしの名前を入れない（送る帯は、すぐ左に「◯◯まで」があるので）
+  function restLabel(totalKg, progress, short) {
+    const share = totalKg > 0 && totalKg < progress.next.kg / 100 ? shareLabel(totalKg, progress.next.kg) : "";
+    if (!share) return "あと " + formatKg(progress.toNextKg);
+    return "いま " + (short ? "" : (progress.next.short || progress.next.name) + "の ") + share;
   }
 
   // 「🐘 ゾウ 0.9 頭分」（重さを、いちばん近い目じるしでくらべる。0 kg なら ""）
@@ -796,7 +804,8 @@ import {
       return;
     }
     const today = weightLine(appState.workout);
-    const progress = progressOf(liftedTotal() + pendingKg());
+    const goalKg = liftedTotal() + pendingKg();
+    const progress = progressOf(goalKg);
     const percent = Math.round(progress.progress * 100);
     elements.goalBar.hidden = false;
     elements.goalBar.innerHTML = [
@@ -804,7 +813,7 @@ import {
       '<p class="goal-next">',
       '  <span class="goal-name">' + escapeHtml(progress.next.icon + " " + (progress.next.short || progress.next.name)) + "まで</span>",
       '  <span class="goal-bar" aria-hidden="true"><span style="width:' + percent + '%"></span></span>',
-      '  <span class="goal-rest">あと <b>' + escapeHtml(formatKg(progress.toNextKg)) + "</b></span>",
+      '  <span class="goal-rest">' + escapeHtml(restLabel(goalKg, progress, true)) + "</span>",
       "</p>"
     ].join("");
   }
@@ -822,20 +831,23 @@ import {
     const total = liftedTotal();
     const progress = progressOf(total);
     const percent = Math.round(progress.progress * 100);
-    const marks = LANDMARKS.slice(0, Math.min(progress.passedCount, LANDMARKS.length));
+    // 越えた目じるしは、新しい3つだけ（それより前は1行にまとめる）。その先はかくし、いちばん先（地球）だけ見せる
+    const marks = marksFor(total).slice(0, progress.passedCount).slice(-3);
+    const older = progress.passedCount - marks.length;
     const hidden = Math.max(0, LANDMARKS.length - progress.passedCount - 1);
-    const rows = marks.map(function (mark) {
-      return '<li class="is-passed"><span class="lifted-mark">✅ ' + escapeHtml(mark.icon + " " + mark.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(mark.kg)) + "</span></li>";
+    const rows = [];
+    if (older > 0) rows.push('<li class="is-passed is-older"><span class="lifted-mark">✅ ほかに ' + older + " 個を越えました</span></li>");
+    marks.forEach(function (mark) {
+      rows.push('<li class="is-passed"><span class="lifted-mark">✅ ' + escapeHtml(mark.icon + " " + mark.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(mark.kg)) + "</span></li>");
     });
-    // いちばん上を越えたあと（「タイタニック号 2隻分」…）は、越えたいちばん上だけ1行で
-    if (progress.passedCount > LANDMARKS.length) {
-      rows.push('<li class="is-passed"><span class="lifted-mark">✅ ' + escapeHtml(progress.passed.icon + " " + progress.passed.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(progress.passed.kg)) + "</span></li>");
-    }
     rows.push(
       '<li class="is-next"><span class="lifted-mark">🎯 ' + escapeHtml(progress.next.icon + " " + progress.next.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(progress.next.kg)) + "</span>" +
-        '<span class="lifted-rest">あと <b>' + escapeHtml(formatKg(progress.toNextKg)) + "</b></span></li>"
+        '<span class="lifted-rest">' + escapeHtml(restLabel(total, progress)).replace(/^(あと |いま )(.*)$/, "$1<b>$2</b>") + "</span></li>"
     );
-    if (hidden) rows.push('<li class="is-locked"><span class="lifted-mark">🔒 この先に、あと ' + hidden + " 個（越えると見えます）</span></li>");
+    if (hidden) {
+      const last = LANDMARKS[LANDMARKS.length - 1];
+      rows.push('<li class="is-locked"><span class="lifted-mark">🔒 この先に、あと ' + hidden + " 個（いちばん先は " + escapeHtml(last.icon + " " + last.name + "・" + weightLabel(last.kg)) + "）</span></li>");
+    }
     return [
       '<section class="lifted" aria-label="これまでに持ち上げた重さ">',
       '  <p class="lifted-title">🏋️ これまでに持ち上げた重さ</p>',
