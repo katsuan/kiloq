@@ -21,7 +21,9 @@ export const STORAGE_KEYS = {
   previewOpen: "liff-workout-preview-open",
   menus: "liff-workout-menus",
   // 作りかけの記録（送る前）。次に開いたら、その続きから
-  draft: "kiloq:draft"
+  draft: "kiloq:draft",
+  // これまでに持ち上げた重さの合計（記録を消しても減らさない。js/lifted.js）
+  lifted: "kiloq:lifted"
 };
 
 export const MAX_HISTORY_ITEMS = 10;

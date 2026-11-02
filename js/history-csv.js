@@ -1,7 +1,7 @@
 // 記録のダウンロード（CSV。Excel・Google スプレッドシートで開ける）の中身を作る。画面には触らない（テストで呼ぶ）。
 // 中身：1行が1セット。重さ 0 は「自重」、回数 0 は「挑戦」と備考に入れる。メモは種目の1セット目の行だけ。
 // 読むところ：app.js の downloadHistory（ファイルにする・共有メニュー・コピーは app.js）
-import { resolveWorkoutTitle } from "./workout.js?v=202611012034";
+import { resolveWorkoutTitle } from "./workout.js?v=202611021518";
 
 // CSV の1つのます目の文字を返す（, " 改行があれば " でかこむ）
 function cell(value) {

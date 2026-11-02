@@ -5,28 +5,28 @@ import {
   formatMetric,
   roundNumber,
   truncateText
-} from "./format.js?v=202611012034";
+} from "./format.js?v=202611021518";
 import {
   buildLiffLaunchUrl,
   buildSameMenuUrl
-} from "./link.js?v=202611012034";
+} from "./link.js?v=202611021518";
 import {
   getTodayLocalDate
-} from "./page.js?v=202611012034";
+} from "./page.js?v=202611021518";
 import {
   APP_CONFIG,
   FLEX_THEME,
   MAX_EXERCISES_PER_BUBBLE,
   MAX_FLEX_UNITS_PER_BUBBLE,
   MAX_SETS_PER_FLEX_EXERCISE
-} from "./settings.js?v=202611012034";
+} from "./settings.js?v=202611021518";
 import {
   hasEstimated1rm,
   isMaxRmSet,
   resolveWorkoutTitle,
   sanitizeWorkout,
   TEXT_LIMITS
-} from "./workout.js?v=202611012034";
+} from "./workout.js?v=202611021518";
 
 const MAX_FLEX_BUBBLES = 12;
 

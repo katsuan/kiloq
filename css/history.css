@@ -200,6 +200,61 @@
   font-size: 0.9rem;
 }
 
+/* これまでに持ち上げた重さ（山登り）。草グラフの下 */
+.climb {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ls-line);
+}
+
+.climb p {
+  margin: 0;
+}
+
+.climb-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ls-subtext);
+}
+
+.climb-total b {
+  font-size: 1.4rem;
+}
+
+.climb-height {
+  margin-left: 8px;
+  font-weight: 700;
+}
+
+.climb-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--ls-accent-soft);
+  overflow: hidden;
+}
+
+.climb-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ls-accent);
+}
+
+.climb-next {
+  font-size: 0.9rem;
+}
+
+.climb-passed {
+  font-size: 0.85rem;
+  color: var(--ls-subtext);
+}
+
+.history-lifted {
+  margin: 0;
+}
+
 /* 週のはじまり（月曜・日曜） */
 .week-start-field {
   display: grid;

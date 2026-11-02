@@ -1,11 +1,11 @@
-// キロっく：端末に残すもの（記録の履歴・トレーニングメニュー）の読み書き。履歴（liff-workout-history）はつづくも読むので形を変えない
+// キロっく：端末に残すもの（記録の履歴・トレーニングメニュー・持ち上げた重さの合計）の読み書き。履歴（liff-workout-history）はつづくも読むので形を変えない
 // app.js から読む（import）
 import {
   FEATURE_FLAGS,
   MAX_HISTORY_ITEMS,
   MAX_MENUS,
   STORAGE_KEYS
-} from "./settings.js?v=202611012034";
+} from "./settings.js?v=202611021518";
 
 // 端末に書く。残せない（容量いっぱい・プライベートブラウズ）ときも止めない（送る・画面はそのまま使える）
 function writeList(key, list) {
@@ -141,4 +141,19 @@ export function createLocalStorageMenuRepository() {
       return writeList(STORAGE_KEYS.menus, list);
     }
   };
+}
+
+// これまでに持ち上げた重さの合計（js/lifted.js の形）を読む。ない・読めないときは null
+export function loadLifted() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.lifted) || "null");
+  } catch (error) {
+    console.warn("Failed to parse lifted total:", error);
+    return null;
+  }
+}
+
+// これまでに持ち上げた重さの合計を残す
+export function saveLifted(ledger) {
+  return writeList(STORAGE_KEYS.lifted, ledger);
 }

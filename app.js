@@ -3,12 +3,12 @@
 import {
   buildWorkoutFlexMessage as buildWorkoutFlexPayload,
   getCreditText
-} from "./js/card.js?v=202611012034";
+} from "./js/card.js?v=202611021518";
 import {
   EXERCISE_CATALOG,
   MENU_PRESETS,
   MUSCLE_FILTERS
-} from "./js/catalog.js?v=202611012034";
+} from "./js/catalog.js?v=202611021518";
 import {
   renderButton,
   renderChip,
@@ -17,17 +17,18 @@ import {
   renderField,
   renderSheet,
   renderStartButton
-} from "./js/components.js?v=202611012034";
+} from "./js/components.js?v=202611021518";
 import {
   buildSampleWorkout,
   mockRanking
-} from "./js/fixtures.js?v=202611012034";
+} from "./js/fixtures.js?v=202611021518";
 import {
   cssEscape,
   escapeHtml,
   formatLocaleMetric
-} from "./js/format.js?v=202611012034";
-import { buildHistoryCsv } from "./js/history-csv.js?v=202611012034";
+} from "./js/format.js?v=202611021518";
+import { buildHistoryCsv } from "./js/history-csv.js?v=202611021518";
+import { climbOf, newlyPassed, syncLifted } from "./js/lifted.js?v=202611021518";
 import {
   buildLineAppUrl,
   getLiffEnvironment,
@@ -35,19 +36,19 @@ import {
   loadCachedProfile,
   loginWithLine,
   safelyGetLiffContext
-} from "./js/liff.js?v=202611012034";
+} from "./js/liff.js?v=202611021518";
 import {
   encodeBase64Url,
   packWorkoutDraft,
   readPackedWorkout,
   unpackWorkoutDraft
-} from "./js/link.js?v=202611012034";
+} from "./js/link.js?v=202611021518";
 import {
   deepClone,
   generateId,
   getTodayLocalDate,
   seasonal
-} from "./js/page.js?v=202611012034";
+} from "./js/page.js?v=202611021518";
 import {
   APP_CONFIG,
   DEFAULT_THEME,
@@ -56,20 +57,22 @@ import {
   MAX_HISTORY_ITEMS,
   MAX_MENUS,
   STORAGE_KEYS
-} from "./js/settings.js?v=202611012034";
+} from "./js/settings.js?v=202611021518";
 import {
   createApiWorkoutRepository,
   createLocalStorageMenuRepository,
-  createLocalStorageWorkoutRepository
-} from "./js/store.js?v=202611012034";
-import { startOfWeek, weekStreak } from "./js/streak.js?v=202611012034";
+  createLocalStorageWorkoutRepository,
+  loadLifted,
+  saveLifted
+} from "./js/store.js?v=202611021518";
+import { startOfWeek, weekStreak } from "./js/streak.js?v=202611021518";
 import {
   applyTheme,
   getFlexTheme as buildFlexTheme,
   loadThemePreference,
   normalizeHexColor,
   saveThemePreference
-} from "./js/theme.js?v=202611012034";
+} from "./js/theme.js?v=202611021518";
 import {
   buildMenuFromWorkout,
   calculateWorkout,
@@ -90,7 +93,7 @@ import {
   sanitizeWorkout as sanitizeWorkoutModel,
   summarizeMenu,
   TEXT_LIMITS
-} from "./js/workout.js?v=202611012034";
+} from "./js/workout.js?v=202611021518";
 
 (function () {
 
@@ -100,6 +103,7 @@ import {
     rankingPeriod: "week",
     rankingData: null,
     history: [],
+    lifted: null, // これまでに持ち上げた重さの合計（js/lifted.js。記録を消しても減らさない）
     menus: [],
     ui: {
       openJsonPreview: false,
@@ -174,6 +178,7 @@ import {
     appState.workout = createEmptyWorkout();
     const resumed = restoreLocalDraft();
     appState.history = loadWorkoutHistory();
+    syncLiftedTotal(); // はじめて開いたときは、今ある記録の分を1回だけ数える
     appState.menus = MenuRepository.loadAll();
     syncWorkoutUser();
     if (isRankingEnabled()) {
@@ -697,6 +702,10 @@ import {
     const before = appState.history.slice();
     await saveWorkout(shareableWorkout);
     appState.history = loadWorkoutHistory();
+    const liftedBefore = liftedTotal();
+    syncLiftedTotal();
+    const reached = newlyPassed(liftedBefore, liftedTotal());
+    const sentTitle = "送りました" + (reached ? "　⛰️ " + reached.name + "（" + formatMeters(reached.m) + "）を越えました！" : "");
     const kept = new Set(appState.history.map((item) => item.workoutId));
     const dropped = before.filter((item) => !kept.has(item.workoutId));
     renderHistory();
@@ -707,13 +716,14 @@ import {
     // 送ったあと：続けて別のトークにも・閉じる・もう少し作る（Q キット）
     if (window.LineShareUI && typeof window.LineShareUI.afterSent === "function") {
       window.LineShareUI.afterSent({
+        title: sentTitle,
         // 「続けて別のトークにも送る」：同じカードを、もう一度送り先を選んで送る。送れたら true
         resend: async function () {
           return Boolean(window.LineShareLiff ? await window.LineShareLiff.share([message]) : await window.liff.shareTargetPicker([message]));
         }
       });
     } else {
-      notify(seasonal("送りました。"), "info");
+      notify(reached ? sentTitle : seasonal("送りました。"), "info");
     }
     if (dropped.length) {
       const name = [formatShortDate(dropped[0].date), String(dropped[0].title || "").trim()].filter(Boolean).join(" ");
@@ -729,6 +739,60 @@ import {
         }
       }, 600);
     }
+  }
+
+  // ---- これまでに持ち上げた重さの合計（js/lifted.js） ----
+  // 履歴（送った記録）のうち、まだ数えていない記録を合計に足して残す。消した・古くて消えた記録は引かない
+  function syncLiftedTotal() {
+    if (!FEATURE_FLAGS.enableLocalHistory) return;
+    const stored = loadLifted();
+    const items = appState.history.map(function (workout) {
+      return { id: workout.workoutId, kg: calculateWorkout(workout).totalVolume };
+    });
+    const result = syncLifted(stored, items);
+    if (!stored || result.added !== 0 || result.ledger.counted.length !== stored.counted.length) saveLifted(result.ledger);
+    appState.lifted = result.ledger;
+  }
+
+  // 合計の kg（まだ数えていなければ 0）
+  function liftedTotal() {
+    return appState.lifted ? appState.lifted.total : 0;
+  }
+
+  // 「1,234 kg」
+  function formatKg(kg) {
+    return Math.round(kg).toLocaleString("ja-JP") + " kg";
+  }
+
+  // 「333 m」（1,000 m からは「1,234 m」、10 m より下は 0.1 m まで）
+  function formatMeters(m) {
+    return (m < 10 ? String(Math.floor(m * 10) / 10) : Math.floor(m).toLocaleString("ja-JP")) + " m";
+  }
+
+  // 履歴の画面の1行：これまでの合計（まだ 0 kg なら出さない）
+  function renderLiftedLine() {
+    const total = liftedTotal();
+    if (!(total > 0)) return "";
+    return '<p class="ls-hint small history-lifted">⛰️ これまでの合計 <b>' + escapeHtml(formatKg(total)) + "</b>（標高 " + escapeHtml(formatMeters(climbOf(total).meters)) + "）。記録を消しても減りません。</p>";
+  }
+
+  // 「あなたの記録」のシートの山登り：合計の重さ・高さ・次の目じるしまでの棒
+  function renderClimb() {
+    if (!FEATURE_FLAGS.enableLocalHistory) return "";
+    const total = liftedTotal();
+    const climb = climbOf(total);
+    const percent = Math.round(climb.progress * 100);
+    return [
+      '<section class="climb" aria-label="これまでに持ち上げた重さ">',
+      '  <p class="climb-title">⛰️ これまでに持ち上げた重さ</p>',
+      '  <p class="climb-total"><b>' + escapeHtml(formatKg(total)) + '</b><span class="climb-height">＝ 標高 ' + escapeHtml(formatMeters(climb.meters)) + "</span></p>",
+      '  <div class="climb-bar" aria-hidden="true"><span style="width:' + percent + '%"></span></div>',
+      climb.passed ? '  <p class="climb-passed">🚩 ' + escapeHtml(climb.passed.name) + "（" + escapeHtml(formatMeters(climb.passed.m)) + "）を越えました</p>" : "",
+      '  <p class="climb-next">次は ' + escapeHtml(climb.next.name) + "（" + escapeHtml(formatMeters(climb.next.m)) + "）まで " +
+        '<span class="ls-nowrap">あと <b>' + escapeHtml(formatKg(climb.toNextKg)) + "</b></span></p>",
+      '  <p class="ls-hint">1 kg を 1 cm として、高さにしています。記録を消しても、この合計は減りません（この端末で送った記録から）。</p>',
+      "</section>"
+    ].join("");
   }
 
   // 送る記録の写し（新しい ID・タイトル・時刻）を作って返す
@@ -868,7 +932,7 @@ import {
     }
 
     if (!appState.history.length) {
-      elements.tabHistory.innerHTML = renderEmpty("🕘", "まだ履歴がありません。カードで送ると、ここに出ます（この端末に、新しいものから " + MAX_HISTORY_ITEMS + " 件まで）。");
+      elements.tabHistory.innerHTML = renderEmpty("🕘", "まだ履歴がありません。カードで送ると、ここに出ます（この端末に、新しいものから " + MAX_HISTORY_ITEMS + " 件まで）。") + renderLiftedLine();
       return;
     }
 
@@ -895,6 +959,7 @@ import {
         "</p>",
       renderButton({ label: "⬇ 記録をダウンロード", action: "download-history" }),
       "</div>",
+      renderLiftedLine(),
       '<p class="ls-hint small history-limit">この端末に残るのは、新しいものから ' + MAX_HISTORY_ITEMS + " 件までです。それより古い記録は消えるので、残したいときは「記録をダウンロード」で控えを。</p>",
       '<div class="ls-folds">',
       months
@@ -2048,6 +2113,7 @@ import {
       body: [
         renderLoginRows(),
         renderGrass(),
+        renderClimb(),
         // 設定はページの下の「⚙️ 設定」に1つ（Q のツールの決まり。q-oqrn の ux.md A7）
         renderButton({ label: "⚙️ 設定（週のはじまり・色）", action: "open-settings-fold" })
       ].join("")
