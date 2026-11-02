@@ -3,12 +3,12 @@
 import {
   buildWorkoutFlexMessage as buildWorkoutFlexPayload,
   getCreditText
-} from "./js/card.js?v=202611021545";
+} from "./js/card.js?v=202611021547";
 import {
   EXERCISE_CATALOG,
   MENU_PRESETS,
   MUSCLE_FILTERS
-} from "./js/catalog.js?v=202611021545";
+} from "./js/catalog.js?v=202611021547";
 import {
   renderButton,
   renderChip,
@@ -17,18 +17,18 @@ import {
   renderField,
   renderSheet,
   renderStartButton
-} from "./js/components.js?v=202611021545";
+} from "./js/components.js?v=202611021547";
 import {
   buildSampleWorkout,
   mockRanking
-} from "./js/fixtures.js?v=202611021545";
+} from "./js/fixtures.js?v=202611021547";
 import {
   cssEscape,
   escapeHtml,
   formatLocaleMetric
-} from "./js/format.js?v=202611021545";
-import { buildHistoryCsv } from "./js/history-csv.js?v=202611021545";
-import { amountLabel, compareWeight, LANDMARKS, marksFor, newlyPassed, progressOf, ratioLabel, shareLabel, syncLifted, weightLabel } from "./js/lifted.js?v=202611021545";
+} from "./js/format.js?v=202611021547";
+import { buildHistoryCsv } from "./js/history-csv.js?v=202611021547";
+import { aheadOf, amountLabel, compareWeight, LANDMARKS, marksFor, newlyPassed, progressOf, ratioLabel, shareLabel, syncLifted, weightLabel } from "./js/lifted.js?v=202611021547";
 import {
   buildLineAppUrl,
   getLiffEnvironment,
@@ -36,19 +36,19 @@ import {
   loadCachedProfile,
   loginWithLine,
   safelyGetLiffContext
-} from "./js/liff.js?v=202611021545";
+} from "./js/liff.js?v=202611021547";
 import {
   encodeBase64Url,
   packWorkoutDraft,
   readPackedWorkout,
   unpackWorkoutDraft
-} from "./js/link.js?v=202611021545";
+} from "./js/link.js?v=202611021547";
 import {
   deepClone,
   generateId,
   getTodayLocalDate,
   seasonal
-} from "./js/page.js?v=202611021545";
+} from "./js/page.js?v=202611021547";
 import {
   APP_CONFIG,
   DEFAULT_THEME,
@@ -57,22 +57,22 @@ import {
   MAX_HISTORY_ITEMS,
   MAX_MENUS,
   STORAGE_KEYS
-} from "./js/settings.js?v=202611021545";
+} from "./js/settings.js?v=202611021547";
 import {
   createApiWorkoutRepository,
   createLocalStorageMenuRepository,
   createLocalStorageWorkoutRepository,
   loadLifted,
   saveLifted
-} from "./js/store.js?v=202611021545";
-import { startOfWeek, weekStreak } from "./js/streak.js?v=202611021545";
+} from "./js/store.js?v=202611021547";
+import { startOfWeek, weekStreak } from "./js/streak.js?v=202611021547";
 import {
   applyTheme,
   getFlexTheme as buildFlexTheme,
   loadThemePreference,
   normalizeHexColor,
   saveThemePreference
-} from "./js/theme.js?v=202611021545";
+} from "./js/theme.js?v=202611021547";
 import {
   buildMenuFromWorkout,
   calculateWorkout,
@@ -93,7 +93,7 @@ import {
   sanitizeWorkout as sanitizeWorkoutModel,
   summarizeMenu,
   TEXT_LIMITS
-} from "./js/workout.js?v=202611021545";
+} from "./js/workout.js?v=202611021547";
 
 (function () {
 
@@ -825,16 +825,15 @@ import {
     return '<p class="ls-hint small history-lifted">🏋️ これまでの合計 <b>' + escapeHtml(formatKg(total)) + "</b>（" + escapeHtml(compareLabel(total)) + "）。記録を消しても減りません。</p>";
   }
 
-  // 「あなたの記録」のシート：これまでの合計・次の目じるしまでの棒・重さの目じるしの表（越えたものに ✅、次だけ「あと ◯ kg」、その先はかくす）
+  // 「あなたの記録」のシート：これまでの合計・次の目じるしまでの棒・重さの目じるしの表（越えたものに ✅、次だけ「あと ◯ kg」、その先は大きな物だけ見せてあいだはかくす）
   function renderLifted() {
     if (!FEATURE_FLAGS.enableLocalHistory) return "";
     const total = liftedTotal();
     const progress = progressOf(total);
     const percent = Math.round(progress.progress * 100);
-    // 越えた目じるしは、新しい3つだけ（それより前は1行にまとめる）。その先はかくし、いちばん先（地球）だけ見せる
+    // 越えた目じるしは、新しい3つだけ（それより前は1行にまとめる）
     const marks = marksFor(total).slice(0, progress.passedCount).slice(-3);
     const older = progress.passedCount - marks.length;
-    const hidden = Math.max(0, LANDMARKS.length - progress.passedCount - 1);
     const rows = [];
     if (older > 0) rows.push('<li class="is-passed is-older"><span class="lifted-mark">✅ ほかに ' + older + " 個を越えました</span></li>");
     marks.forEach(function (mark) {
@@ -844,10 +843,14 @@ import {
       '<li class="is-next"><span class="lifted-mark">🎯 ' + escapeHtml(progress.next.icon + " " + progress.next.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(progress.next.kg)) + "</span>" +
         '<span class="lifted-rest">' + escapeHtml(restLabel(total, progress)).replace(/^(あと |いま )(.*)$/, "$1<b>$2</b>") + "</span></li>"
     );
-    if (hidden) {
-      const last = LANDMARKS[LANDMARKS.length - 1];
-      rows.push('<li class="is-locked"><span class="lifted-mark">🔒 この先に、あと ' + hidden + " 個（いちばん先は " + escapeHtml(last.icon + " " + last.name + "・" + weightLabel(last.kg)) + "）</span></li>");
-    }
+    // その先：よく知られた大きな物（東京タワー・富士山・月・地球…）は見せ、あいだの細かい目じるしはかくす
+    aheadOf(total).forEach(function (row) {
+      if (row.mark) {
+        rows.push('<li class="is-ahead"><span class="lifted-mark">' + escapeHtml(row.mark.icon + " " + row.mark.name) + '</span><span class="lifted-kg">' + escapeHtml(weightLabel(row.mark.kg)) + "</span></li>");
+      } else {
+        rows.push('<li class="is-locked"><span class="lifted-mark">🔒 この間に、あと ' + row.locked + " 個</span></li>");
+      }
+    });
     return [
       '<section class="lifted" aria-label="これまでに持ち上げた重さ">',
       '  <p class="lifted-title">🏋️ これまでに持ち上げた重さ</p>',

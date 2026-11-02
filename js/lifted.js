@@ -10,7 +10,9 @@ export const COUNTED_MAX = 300; // 履歴は10件までなので、これだけ�
 
 // 重さの目じるし（軽い順。kg は広く知られた数字の「約」）。count はくらべるときの数え方（「ゾウ 0.9 頭分」）、short は送る帯の中で使う短い呼び名（ないときは name）
 // ふつうに続けて届く 100 kg 〜 数千 t（1回 3〜6 t、1年で 300〜500 t）は細かく、ほぼ毎回なにかを越える。その先は大きく飛ばして月・地球まで。
-// 山のように重さがはっきりしないものは入れない（水は 1 m³ ＝ 1 t で、広く知られた水の量から）。地球を越えたら「地球 2個分」…と続ける
+// 水は 1 m³ ＝ 1 t で、広く知られた水の量から。重さの公式の数字がないものは見積もり（スカイツリー：講談社の本の約3万2000 t、
+// 富士山：体積 500 km³ 余り（防災科学技術研究所）× 岩の重さ 1 m³ あたり約 2 t）。地球を越えたら「地球 2個分」…と続ける
+// big：名前と重さがよく知られた大きな物。まだ届いていなくても表に出す（「いつか地球まで」が見えるように）。ほかの先の目じるしはかくす
 export const LANDMARKS = [
   { icon: "🐼", name: "パンダ", kg: 100, count: "頭" },
   { icon: "🦁", name: "ライオン", kg: 200, count: "頭" },
@@ -39,23 +41,25 @@ export const LANDMARKS = [
   { icon: "🚂", name: "貨物列車（いちばん長いもの）", short: "貨物列車", kg: 1300000, count: "本" },
   { icon: "🚀", name: "スペースシャトル（打ち上げのとき）", short: "シャトル", kg: 2000000, count: "機" },
   { icon: "🚀", name: "サターンV ロケット", short: "ロケット", kg: 3000000, count: "機" },
-  { icon: "🗼", name: "東京タワー", kg: 4000000, count: "本" },
-  { icon: "🗼", name: "エッフェル塔", kg: 10000000, count: "本" },
-  { icon: "🚢", name: "タイタニック号", short: "タイタニック", kg: 50000000, count: "隻" },
+  { icon: "🗼", name: "東京タワー", kg: 4000000, count: "本", big: true },
+  { icon: "🗼", name: "エッフェル塔", kg: 10000000, count: "本", big: true },
+  { icon: "🗼", name: "東京スカイツリー", short: "スカイツリー", kg: 32000000, count: "本", big: true },
+  { icon: "🚢", name: "タイタニック号", short: "タイタニック", kg: 50000000, count: "隻", big: true },
   { icon: "⚓", name: "戦艦大和", kg: 70000000, count: "隻" },
   { icon: "🛳️", name: "原子力空母", short: "空母", kg: 100000000, count: "隻" },
   { icon: "🛢️", name: "大型タンカー（荷物満載）", short: "タンカー", kg: 300000000, count: "隻" },
   { icon: "🏟️", name: "東京ドームいっぱいの水", short: "東京ドームの水", kg: 1.24e9, count: "杯" },
-  { icon: "🔺", name: "ギザの大ピラミッド", short: "ピラミッド", kg: 6e9, count: "基" },
+  { icon: "🔺", name: "ギザの大ピラミッド", short: "ピラミッド", kg: 6e9, count: "基", big: true },
   { icon: "💧", name: "黒部ダムの水", short: "黒部ダム", kg: 2e11, count: "杯" },
-  { icon: "🏞️", name: "琵琶湖の水", short: "琵琶湖", kg: 2.75e13, count: "杯" },
+  { icon: "🏞️", name: "琵琶湖の水", short: "琵琶湖", kg: 2.75e13, count: "杯", big: true },
+  { icon: "🗻", name: "富士山", kg: 1e15, count: "個", big: true },
   { icon: "🏞️", name: "バイカル湖の水", short: "バイカル湖", kg: 2.36e16, count: "杯" },
   { icon: "🌧️", name: "世界に1年でふる雨と雪", short: "1年の雨", kg: 5e17, count: "年" },
   { icon: "🌬️", name: "地球の空気", short: "空気", kg: 5.1e18, count: "個" },
   { icon: "🧊", name: "南極の氷", kg: 2.4e19, count: "個" },
   { icon: "🌊", name: "地球の海の水", short: "海の水", kg: 1.4e21, count: "個" },
-  { icon: "🌕", name: "月", kg: 7.3e22, count: "個" },
-  { icon: "🌍", name: "地球", kg: 6e24, count: "個" }
+  { icon: "🌕", name: "月", kg: 7.3e22, count: "個", big: true },
+  { icon: "🌍", name: "地球", kg: 6e24, count: "個", big: true }
 ];
 const TOP = LANDMARKS[LANDMARKS.length - 1];
 
@@ -166,6 +170,21 @@ export function progressOf(totalKg) {
     toNextKg: Math.max(0, Math.ceil((next.kg - kg) * 10) / 10),
     progress: Math.min(1, Math.max(0, (kg - from) / (next.kg - from)))
   };
+}
+
+/**
+ * 次の目じるしより先の並び：よく知られた大きな物（big）はそのまま、そのあいだの細かい目じるしは「かくした数」にまとめる。
+ * [{ mark }, { locked: 3 }, { mark }, ...]（表の「🗻 富士山 約1兆 t」「🔒 この間に、あと 3 個」）
+ */
+export function aheadOf(totalKg) {
+  const next = progressOf(totalKg).next;
+  const rows = [];
+  for (const mark of LANDMARKS.filter((m) => m.kg > next.kg)) {
+    if (mark.big) rows.push({ mark });
+    else if (rows.length && rows[rows.length - 1].locked) rows[rows.length - 1].locked += 1;
+    else rows.push({ locked: 1 });
+  }
+  return rows;
 }
 
 // 合計が before から after に増えたとき、新しく越えた目じるし（いちばん重いもの）。越えていなければ null

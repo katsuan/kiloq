@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert";
 
-const { amountLabel, bigNumber, compareWeight, COUNTED_MAX, LANDMARKS, liftedIn, marksFor, newlyPassed, progressOf, ratioLabel, shareLabel, syncLifted, weightLabel } = await import("../js/lifted.js");
+const { aheadOf, amountLabel, bigNumber, compareWeight, COUNTED_MAX, LANDMARKS, liftedIn, marksFor, newlyPassed, progressOf, ratioLabel, shareLabel, syncLifted, weightLabel } = await import("../js/lifted.js");
 
 test("はじめては、今ある記録を1回だけ数える。もう一度合わせても増えない（2回入らない）", () => {
   const first = syncLifted(null, [{ id: "a", kg: 1000 }, { id: "b", kg: 500.5 }]);
@@ -158,4 +158,23 @@ test("遠い目じるしは「あと」の代わりに「◯％」「◯分の1�
   assert.equal(shareLabel(12000, 6e24), "5垓分の1");
   assert.equal(shareLabel(0, 6e24), "");
   assert.equal(shareLabel(7e24, 6e24), "");
+});
+
+test("先の目じるし：よく知られた大きな物は見せ、あいだの細かい目じるしはまとめてかくす", () => {
+  const names = (rows) => rows.map((r) => (r.mark ? r.mark.name : "🔒" + r.locked));
+  const big = LANDMARKS.filter((m) => m.big).map((m) => m.name);
+  for (const name of ["東京タワー", "東京スカイツリー", "ギザの大ピラミッド", "富士山", "月", "地球"]) assert.ok(big.includes(name), name);
+  const start = names(aheadOf(0));
+  assert.equal(start[start.length - 1], "地球"); // いちばん先の地球は、はじめから見える
+  assert.ok(start.includes("富士山") && start.includes("月"));
+  assert.ok(!start.includes("ゾウ")); // 細かい目じるしはかくす
+  assert.ok(!start.some((n, i) => n.startsWith("🔒") && start[i + 1]?.startsWith("🔒"))); // かくした数は1行にまとまる
+  // かくした数と見せた数を足すと、次より先の目じるしの数になる
+  const count = aheadOf(0).reduce((sum, r) => sum + (r.mark ? 1 : r.locked), 0);
+  assert.equal(count, LANDMARKS.length - 1);
+  // 次の目じるしは「先」に入らない・越えた物は出ない
+  assert.ok(!names(aheadOf(4500000)).includes("東京タワー"));
+  assert.equal(progressOf(4500000).next.name, "エッフェル塔");
+  assert.ok(!names(aheadOf(4500000)).includes("エッフェル塔"));
+  assert.deepEqual(aheadOf(LANDMARKS[LANDMARKS.length - 1].kg * 1.5), []); // 地球を越えたら先はない
 });

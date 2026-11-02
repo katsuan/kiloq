@@ -288,10 +288,15 @@
   color: var(--ls-text);
 }
 
+/* まだ届いていない、よく知られた大きな物（「いつか地球まで」） */
+.lifted-marks .is-ahead {
+  color: var(--ls-subtext);
+}
+
 .lifted-marks .is-locked {
   color: var(--ls-subtext);
-  font-size: 0.85rem;
-  border-bottom: 0;
+  font-size: 0.8rem;
+  padding: 2px 0;
 }
 
 /* 送る帯の上：今日の重さと、次の目じるしまでの棒 */
