@@ -23,8 +23,8 @@
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <!-- 部品（見出しの行・タブ・カード・チップ・入力欄・ボタン・開閉・シート・送る帯・トースト）はおくるんの Q キット。キロっくの CSS より前に読む -->
-    <link rel="stylesheet" href="https://katsuan.github.io/line-share/shared/ui.css?v=202610262400" />
-    <link rel="stylesheet" href="./style.css?v=202611021558" />
+    <link rel="stylesheet" href="https://katsuan.github.io/line-share/shared/ui.css?v=202611021613" />
+    <link rel="stylesheet" href="./style.css?v=202611021614" />
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://katsuan.github.io/line-share/shared/ui.js" defer></script>
     <!-- 週のはじまり（Q 共通の設定。つづく・くるかな・BabyQ とそろう）。草グラフの週と「◯週 連続」に使う -->
@@ -33,8 +33,10 @@
     <script src="https://katsuan.github.io/line-share/shared/liff.js?v=202610262400" defer></script>
     <!-- 見出しの右の本人のアイコン（つづく・しょくじと同じ。Q キット。window.QLineMe） -->
     <script src="https://katsuan.github.io/line-share/shared/line-me.js?v=202610262400" defer></script>
-    <script src="./js/line-config.js?v=202611021558"></script>
-    <script type="module" src="./app.js?v=202611021558"></script>
+    <!-- これまでに持ち上げた重さの目じるし・進みぐあい・消しても減らない合計（Q キット。window.QMilestones。見た目は ui.css の .ls-goal・.ls-ms） -->
+    <script src="https://katsuan.github.io/line-share/shared/milestones.js?v=202611021613" defer></script>
+    <script src="./js/line-config.js?v=202611021614"></script>
+    <script type="module" src="./app.js?v=202611021614"></script>
     <script src="https://katsuan.github.io/line-share/shared/tool-share.js" data-tool="kiloq" defer></script>
   </head>
   <body>
@@ -78,8 +80,8 @@
         <!-- ブラウザ版（送り先選びが使えないとき）だけ出す。ログインか LINE 版へ移る。入力は持っていく -->
         <!-- 中身（「🔑 ログインして送る」「📱 LINE 版で開く」）は Q キットの shared/liff.js の outsideHelp が入れる（ほかのツールと同じ言葉・動き） -->
         <div class="ls-outside" id="line-help" hidden></div>
-        <!-- 今日の重さと、次の重さの目じるし（ゾウ・クジラ…）までの棒（app.js の renderGoalBar） -->
-        <div class="goal" id="goal-bar" hidden></div>
+        <!-- 今日の重さと、次の重さの目じるし（ゾウ・クジラ…）までの棒（app.js の renderGoalBar。中身は Q キットの QMilestones.goalHtml） -->
+        <div class="ls-goal" id="goal-bar" hidden></div>
         <div class="ls-sendbar-row">
           <button class="ls-send ls-send-secondary" id="copy-json-button" type="button" hidden>Flex JSONコピー</button>
           <button class="ls-send is-line is-oqrn" id="share-button" type="button">カードでおくるん</button>
