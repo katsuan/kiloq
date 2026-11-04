@@ -837,15 +837,13 @@ import {
       appState.ui.expandedExerciseId = getDefaultExpandedExerciseId(workout.exercises);
     }
     // 並びは「記録の前提 → 主な作業 → 補助的な操作」
-    //   1. 見出し（アイコン＋「記録入力」だけ）  2. 始め方（メニュー・履歴から入れる）
+    //   1. アイコン（Q キットの line-me.js が読めないときだけ）  2. 始め方（メニュー・履歴から入れる）
     //   3. ワークアウトタイトル（日付は入力した日を自動で使う）  4. 種目とセット  5. サンプル・リセット
     const html = [
       '<div class="input-stack">',
-      '  <div class="input-page-head">',
-      // アイコンは見出し（ロゴの右）に出す（Q キットの shared/line-me.js）。読めなかったときだけ、ここに前のボタン
-      lineMe ? "" : renderSettingsTrigger(),
-      '    <h2 class="panel-title">記録入力</h2>',
-      "  </div>",
+      // アイコンは見出し（ロゴの右）に出す（Q キットの shared/line-me.js）。読めなかったときだけ、ここに前のボタン。
+      // 「記録入力」の見出しは置かない（タブが「入力」と言っている）
+      lineMe ? "" : '  <div class="input-page-head">' + renderSettingsTrigger() + "</div>",
       renderInputStartActions(),
       renderSettingsSheet(),
       renderMenuSheet(),
@@ -1807,7 +1805,6 @@ import {
         '">',
       '  <div class="exercise-header" data-disclosure-host>',
       '    <div class="exercise-heading">',
-      '      <p class="section-label">エクササイズ ' + (exerciseIndex + 1) + "</p>",
       '      <h3 class="exercise-title">' + escapeHtml(exerciseTitle) + "</h3>",
       summary ? '      <p class="exercise-meta">' + escapeHtml(summary) + "</p>" : "",
       "    </div>",
@@ -2471,10 +2468,6 @@ import {
       return "";
     }
 
-    const currentIndex = (exercises || []).findIndex(function (exercise) {
-      return exercise.exerciseId === currentExercise.exerciseId;
-    });
-
     // タップでその種目のカードへ移動する
     return [
       '<button class="current-exercise-indicator" data-action="jump-to-current-exercise" data-exercise-id="' +
@@ -2482,9 +2475,7 @@ import {
         '" type="button" aria-label="入力中の種目へ移動">',
       '  <span class="current-exercise-copy">',
       '    <span class="current-exercise-label">入力中</span>',
-      '    <strong class="current-exercise-name">エクササイズ ' +
-        escapeHtml(String(currentIndex + 1)) +
-        " ・ " +
+      '    <strong class="current-exercise-name">' +
         escapeHtml(currentExercise.name || "種目を選択") +
         "</strong>",
       "  </span>",
@@ -2740,11 +2731,11 @@ import {
     return [
       '<div class="exercise-picker">',
       '  <div class="ls-field">',
-      '    <span class="ls-label">1. 部位を選択</span>',
+      '    <span class="ls-label">部位</span>',
       '    <div class="ls-chips">' + muscleChips + "</div>",
       "  </div>",
       '  <div class="ls-field">',
-      '    <span class="ls-label">2. 種目を選択</span>',
+      '    <span class="ls-label">種目</span>',
       options,
       muscle
         ? renderButton({ label: "＋自由入力", className: "custom-exercise-button", action: "start-custom-exercise", attrs: idAttrs })

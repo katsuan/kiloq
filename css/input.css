@@ -2,14 +2,14 @@
 
 .input-stack {
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
 /* ---- 見出し（ユーザーのアイコン＋「記録入力」） ---- */
 .input-page-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 4px 4px 0;
 }
 
@@ -69,13 +69,13 @@
 .input-start-button {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
   min-height: 52px;
-  padding: 8px 12px;
-  border: 1px solid var(--kq-outline);
+  padding: 8px 16px;
+  border: 1px solid var(--ls-line);
   border-radius: 16px;
-  background: var(--kq-surface);
+  background: var(--ls-surface);
   color: var(--ls-text);
   text-align: left;
   cursor: pointer;
@@ -85,8 +85,8 @@
 .input-start-row.is-3 .input-start-button {
   flex-direction: column;
   justify-content: center;
-  gap: 2px;
-  padding: 8px 6px;
+  gap: 4px;
+  padding: 8px 8px;
   text-align: center;
 }
 
@@ -117,7 +117,7 @@
 }
 
 .input-start-label {
-  color: var(--ls-accent-ink);
+  color: var(--ls-text);
   font-size: 0.92rem;
   font-weight: 700;
 }
@@ -137,10 +137,10 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 8px 10px;
-  border: 1px solid var(--kq-outline);
+  padding: 8px 8px;
+  border: 1px solid var(--ls-line);
   border-radius: 14px;
-  background: var(--kq-surface);
+  background: var(--ls-surface);
   box-shadow: 0 8px 18px rgba(31, 42, 31, 0.06);
   color: inherit;
   text-align: left;
@@ -150,7 +150,7 @@
 .current-exercise-copy {
   display: grid;
   flex: 1;
-  gap: 2px;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -174,9 +174,9 @@
 /* ---- 種目カード ---- */
 .exercise-card {
   /* 「入力中」から移ったとき、カードの頭が「入力中」の帯に隠れないように */
-  scroll-margin-top: 76px;
-  padding: 10px 12px;
-  border: 1px solid var(--kq-outline);
+  scroll-margin-top: 80px;
+  padding: 8px 16px;
+  border: 1px solid var(--ls-line);
   border-radius: var(--ls-radius-lg);
   background: var(--ls-surface);
   box-shadow: var(--ls-shadow);
@@ -186,8 +186,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 6px;
+  gap: 16px;
+  margin-bottom: 8px;
 }
 
 .exercise-heading {
@@ -200,7 +200,7 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: flex-end;
-  gap: 6px;
+  gap: 8px;
   margin-left: auto;
 }
 
@@ -210,7 +210,7 @@
 }
 
 .exercise-meta {
-  margin: 1px 0 0;
+  margin: 0 0 0;
   color: var(--ls-subtext);
   font-size: 0.8rem;
   line-height: 1.25;
@@ -219,17 +219,16 @@
 .exercise-body,
 .exercise-content-shell {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 /* 部位 → 種目 を選ぶところ */
 .exercise-picker {
   display: grid;
-  gap: 10px;
-  padding: 10px;
-  border: 1px dashed var(--kq-outline);
+  gap: 8px;
+  padding: 8px;
   border-radius: 16px;
-  background: var(--kq-tint);
+  background: var(--ls-surface-sub);
 }
 
 .exercise-picker .ls-chip {
@@ -250,17 +249,17 @@
 }
 
 .set-row {
-  padding: 10px;
-  border: 1px solid var(--kq-outline);
+  padding: 8px;
+  border: 1px solid var(--ls-line);
   border-radius: 16px;
-  background: var(--kq-surface-strong);
+  background: var(--ls-surface-sub);
 }
 
 .set-row-head {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .set-badge {
@@ -268,23 +267,22 @@
   align-items: center;
   justify-content: center;
   min-height: 28px;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: var(--ls-accent-soft);
-  color: var(--ls-accent-ink);
+  color: var(--ls-text);
   font-size: 0.82rem;
   font-weight: 700;
 }
 
 .set-head-meta {
   display: flex;
+  flex-wrap: wrap;
   flex: 1;
   align-items: baseline;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
 }
 
 .set-head-meta .metric-label {
+  white-space: nowrap;
   color: var(--ls-subtext);
   font-size: 0.73rem;
   font-weight: 700;
@@ -319,7 +317,7 @@
   grid-template-columns: 36px minmax(0, 1fr) 36px;
   align-items: stretch;
   overflow: hidden;
-  border: 1px solid var(--kq-outline);
+  border: 1px solid var(--ls-line);
   border-radius: 14px;
   background: var(--ls-surface);
 }
@@ -350,9 +348,9 @@
   display: flex;
   align-items: baseline;
   justify-content: center;
-  gap: 2px;
+  gap: 4px;
   min-width: 0;
-  padding: 0 2px;
+  padding: 0 4px;
 }
 
 .stepper-input {
@@ -391,7 +389,7 @@
 .exercise-inline-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .exercise-inline-actions .ls-button {
@@ -400,8 +398,8 @@
 }
 
 .add-set-button {
-  background: var(--kq-surface);
-  color: var(--ls-accent-ink);
+  background: var(--ls-surface-sub);
+  color: var(--ls-text);
 }
 
 .memo-toggle-button {
@@ -415,7 +413,7 @@ textarea.memo-input {
 /* 種目追加は親指で押しやすい横幅いっぱいのボタンに */
 .tail-add-button {
   min-height: 48px;
-  margin: 2px 0 8px;
+  margin: 4px 0 8px;
   border-style: dashed;
   font-size: 0.95rem;
   font-weight: 800;
@@ -424,15 +422,15 @@ textarea.memo-input {
 /* 補助の操作は一番下に小さく */
 .input-utility-row {
   display: flex;
-  justify-content: center;
-  gap: 18px;
-  padding: 4px 0 12px;
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 4px 0 16px;
 }
 
 /* 「あなたの記録」のシートのいちばん上：だれでログインしているか（つづく・しょくじのアイコンのシートと同じ言葉） */
 .login-rows {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   margin: 0 0 4px;
   padding: 0;
   list-style: none;

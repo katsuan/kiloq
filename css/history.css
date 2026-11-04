@@ -5,8 +5,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .history-tools-count {
@@ -37,9 +37,9 @@
 
 .history-card {
   overflow: hidden;
-  border: 1px solid var(--kq-outline);
+  border: 1px solid var(--ls-line);
   border-radius: var(--ls-radius-lg);
-  background: var(--kq-surface);
+  background: var(--ls-surface);
   box-shadow: var(--ls-shadow);
 }
 
@@ -49,8 +49,8 @@
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 8px 12px;
-  padding: 14px 16px;
+  gap: 8px 16px;
+  padding: 16px 16px;
 }
 
 .history-card-copy {
@@ -75,7 +75,7 @@
 
 .history-card-body {
   display: grid;
-  gap: 12px;
+  gap: 16px;
   padding: 0 16px 16px;
 }
 
@@ -98,8 +98,8 @@
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
-  margin-top: 14px;
+  gap: 16px;
+  margin-top: 16px;
 }
 
 @media (min-width: 560px) {
@@ -116,16 +116,16 @@
 
 .grass-grid {
   display: flex;
-  gap: 3px;
+  gap: 4px;
   overflow-x: auto;
-  padding-bottom: 2px;
+  padding-bottom: 4px;
 }
 
 .grass-days,
 .grass-week {
   display: grid;
   grid-template-rows: 14px repeat(7, 12px);
-  gap: 3px;
+  gap: 4px;
   flex: 0 0 auto;
 }
 
@@ -186,7 +186,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 6px 12px;
+  gap: 8px 16px;
 }
 
 .grass-stats {
@@ -202,8 +202,8 @@
 
 /* これまでに持ち上げた重さの表（Q キットの .ls-ms。shared/milestones.js）。シートでは草グラフの下に線で区切る */
 .grass + .ls-ms {
-  margin-top: 14px;
-  padding-top: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
   border-top: 1px solid var(--ls-line);
 }
 
@@ -214,7 +214,7 @@
 /* 週のはじまり（月曜・日曜） */
 .week-start-field {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   margin-top: 4px;
 }
 
@@ -225,7 +225,7 @@
 .grass-legend {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   margin: 0;
   color: var(--ls-subtext);
   font-size: 10px;
@@ -240,7 +240,7 @@
 .settings-color-row {
   display: grid;
   grid-template-columns: 92px minmax(0, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 
 .color-input {
@@ -299,7 +299,7 @@
 }
 
 .menu-section-title {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   color: var(--ls-subtext);
   font-size: 0.78rem;
   font-weight: 700;
@@ -310,7 +310,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 2px 8px;
+  gap: 4px 8px;
 }
 
 .menu-meta {
@@ -329,18 +329,18 @@
 /* ---- ランキング（デバッグ用のモック） ---- */
 .ranking-grid {
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
 .ranking-card {
   padding: 16px;
-  border: 1px solid var(--kq-outline);
+  border: 1px solid var(--ls-line);
   border-radius: var(--ls-radius-lg);
-  background: var(--kq-surface);
+  background: var(--ls-surface);
 }
 
 .ranking-card h4 {
-  margin: 0 0 10px;
+  margin: 0 0 8px;
 }
 
 .ranking-stack {
@@ -352,7 +352,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
 }
 
 .ranking-meta {
