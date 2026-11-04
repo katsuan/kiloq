@@ -208,7 +208,33 @@
 }
 
 .history-lifted {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 16px;
+}
+
+.history-lifted-main {
   margin: 0;
+  color: var(--ls-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.history-lifted-main b {
+  font-weight: 700;
+}
+
+.history-lifted-sub,
+.history-limit {
+  margin: 0;
+  color: var(--ls-subtext);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* 端末に残る件数の注意：件数とダウンロードのすぐ下、月ごとの記録より上 */
+.history-limit {
+  margin: 0 0 16px;
 }
 
 /* 週のはじまり（月曜・日曜） */

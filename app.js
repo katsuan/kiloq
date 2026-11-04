@@ -802,11 +802,17 @@ import {
     elements.goalBar.innerHTML = milestones.goalHtml(liftedTotal() + pendingKg(), { lead: weightLine(appState.workout) });
   }
 
-  // 履歴の画面の1行：これまでの合計（まだ 0 kg なら出さない）
+  // 履歴の画面のいちばん上：これまでの合計（まだ 0 kg なら出さない）。
+  // 1行目は合計（大きく）、その下にくらべと「消しても減らない」を1行ずつ（うすく）。端末に残る件数の話とは分けて置く
   function renderLiftedLine() {
     const total = liftedTotal();
     if (!(total > 0) || !milestones) return "";
-    return '<p class="ls-hint small history-lifted">' + lineIcon("dumbbell", true) + "これまでの合計 <b>" + escapeHtml(formatKg(total)) + "</b>（" + escapeHtml(compareLabel(total)) + "）。記録を消しても減りません。</p>";
+    return (
+      '<div class="history-lifted">' +
+      '<p class="history-lifted-main">' + lineIcon("dumbbell", true) + "これまでに持ち上げた重さ <b class=\"ls-nowrap\">" + escapeHtml(formatKg(total)) + "</b></p>" +
+      '<p class="history-lifted-sub"><span class="ls-nowrap">' + escapeHtml(compareLabel(total)) + "</span><br>記録を消しても減りません</p>" +
+      "</div>"
+    );
   }
 
   // 「あなたの記録」のシート：これまでの合計・次の目じるしまでの棒・重さの目じるしの表（越えたものに ✅、次だけ「あと ◯ kg」、その先は大きな物だけ見せてあいだはかくす。押すと「いま ◯ 頭分」）
@@ -954,7 +960,7 @@ import {
     }
 
     if (!appState.history.length) {
-      elements.tabHistory.innerHTML = renderEmpty("clock", "まだ履歴がありません。カードで送ると、ここに出ます（この端末に、新しいものから " + MAX_HISTORY_ITEMS + " 件まで）。") + renderLiftedLine();
+      elements.tabHistory.innerHTML = renderLiftedLine() + renderEmpty("clock", "まだ履歴がありません。カードで送ると、ここに出ます（この端末に、新しいものから " + MAX_HISTORY_ITEMS + " 件まで）。");
       return;
     }
 
@@ -974,6 +980,7 @@ import {
     });
 
     const html = [
+      renderLiftedLine(),
       '<div class="history-tools">',
       '  <p class="history-tools-count' + (appState.history.length >= MAX_HISTORY_ITEMS - 1 ? " is-warn" : "") + '">' +
         escapeHtml(String(appState.history.length)) + " / " + MAX_HISTORY_ITEMS + "件の記録" +
@@ -981,8 +988,7 @@ import {
         "</p>",
       renderButton({ label: "記録をダウンロード", icon: "save", action: "download-history" }),
       "</div>",
-      renderLiftedLine(),
-      '<p class="ls-hint small history-limit">この端末に残るのは、新しいものから ' + MAX_HISTORY_ITEMS + " 件までです。それより古い記録は消えるので、残したいときは「記録をダウンロード」で控えを。</p>",
+      '<p class="history-limit"><span class="ls-nowrap">この端末に残るのは新しい ' + MAX_HISTORY_ITEMS + ' 件まで。</span><span class="ls-nowrap">古い記録は、ダウンロードで控えを。</span></p>',
       '<div class="ls-folds">',
       months
         .map(function (key, index) {
