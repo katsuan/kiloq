@@ -65,12 +65,12 @@
         <section class="tab-panel" id="tab-history" hidden></section>
         <section class="tab-panel" id="tab-ranking" hidden></section>
       </main>
-      <!-- ⚙️ 設定（Q のツールの決まり：設定はページの下のここに1つ。アイコンの「あなたの記録」のシートからも開く。q-oqrn の ux.md A7）。中身は app.js の renderSettingsFold -->
+      <!-- 設定（Q のツールの決まり：設定はページの下のここに1つ。アイコンの「あなたの記録」のシートからも開く。q-oqrn の ux.md A7）。中身は app.js の renderSettingsFold -->
       <details class="ls-fold settings-fold" id="settings">
         <summary><span class="ls-fold-icon ls-icon" data-icon="settings" aria-hidden="true"></span>設定 <span class="ls-fold-meta">週のはじまり・色</span></summary>
         <div class="ls-fold-body" id="settings-body"></div>
       </details>
-      <!-- 「📤 キロっくを紹介する」：おくるんで紹介カードを送る窓口（line-share/shared/tool-share.js。中身は line-share/data/hub-links.json） -->
+      <!-- 「キロっくを紹介する」：おくるんで紹介カードを送る窓口（line-share/shared/tool-share.js。中身は line-share/data/hub-links.json） -->
       <div data-tool-share></div>
     </div>
 
@@ -78,7 +78,7 @@
     <div class="ls-sendbar" id="action-bar">
       <div class="ls-sendbar-inner">
         <!-- ブラウザ版（送り先選びが使えないとき）だけ出す。ログインか LINE 版へ移る。入力は持っていく -->
-        <!-- 中身（「🔑 ログインして送る」「📱 LINE 版で開く」）は Q キットの shared/liff.js の outsideHelp が入れる（ほかのツールと同じ言葉・動き） -->
+        <!-- 中身（「ログインして送る」「LINE 版で開く」）は Q キットの shared/liff.js の outsideHelp が入れる（ほかのツールと同じ言葉・動き） -->
         <div class="ls-outside" id="line-help" hidden></div>
         <!-- 今日の重さと、次の重さの目じるし（ゾウ・クジラ…）までの棒（app.js の renderGoalBar。中身は Q キットの QMilestones.goalHtml） -->
         <div class="ls-goal" id="goal-bar" hidden></div>

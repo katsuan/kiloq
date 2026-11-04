@@ -1120,7 +1120,7 @@ import {
         CLICK_ACTIONS[sheetClose]({}, event.target);
         return;
       }
-      // 開閉できる見出しは、▾ だけでなく行のどこを押しても開閉する
+      // 開閉できる見出しは、開閉の印だけでなく行のどこを押しても開閉する
       const host = event.target.closest("[data-disclosure-host]");
       const toggle = host && !event.target.closest("input, textarea, select, label, a")
         ? host.querySelector(".disclosure-toggle")
@@ -1193,7 +1193,7 @@ import {
     "reset-workout": function () {
       resetWorkout();
     },
-    // 「✏️ 新しく」：空の記録からはじめる（入れていた種目があれば「元に戻す」で戻せる）
+    // 「新しく」：空の記録からはじめる（入れていた種目があれば「元に戻す」で戻せる）
     "new-workout": function () {
       replaceWorkout(createEmptyWorkout(), "新しい記録をはじめます。");
     },
@@ -1242,7 +1242,7 @@ import {
     "open-settings-modal": function () {
       openSettingsSheet();
     },
-    // 「⚙️ 設定」：シートを閉じて、ページの下の設定の欄を開く
+    // 「設定」：シートを閉じて、ページの下の設定の欄を開く
     "open-settings-fold": function () {
       appState.ui.settingsModalOpen = false;
       renderInput();
@@ -1527,7 +1527,7 @@ import {
     }
   }
 
-  // 🔑 ログインして送る：入力をこのブラウザに残してから、LINE のログインへ
+  // ログインして送る：入力をこのブラウザに残してから、LINE のログインへ
   function startLineLogin() {
     keepDraftForLogin();
     if (!loginWithLine()) {
@@ -1934,7 +1934,7 @@ import {
   function renderLoginRows() {
     if (!lineMe || !window.QLineMe) return "";
     const status = lineMe.status();
-    // ログインしていないときは、ここからもログインできる（下の帯の「🔑 ログインして送る」と同じ。入力は残る）
+    // ログインしていないときは、ここからもログインできる（下の帯の「ログインして送る」と同じ。入力は残る）
     const canLogin = !status.loggedIn && !!window.liff && typeof window.liff.login === "function";
     const rows = window.QLineMe.describe(
       Object.assign({}, status, { canLogin: canLogin, bot: false, moveHint: "ページの下の「この端末の記録をバックアップ」でうつせます" })
@@ -1947,7 +1947,7 @@ import {
     );
   }
 
-  // 「あなたの記録」のシート（ログイン・草グラフ・連続と、ページの下の「⚙️ 設定」へのボタン）の HTML を返す。閉じているときは ""
+  // 「あなたの記録」のシート（ログイン・草グラフ・連続と、ページの下の「設定」へのボタン）の HTML を返す。閉じているときは ""
   function renderSettingsSheet() {
     if (!appState.ui.settingsModalOpen) {
       return "";
@@ -1960,13 +1960,13 @@ import {
         renderLoginRows(),
         renderGrass(),
         renderLifted(),
-        // 設定はページの下の「⚙️ 設定」に1つ（Q のツールの決まり。q-oqrn の ux.md A7）
+        // 設定はページの下の「設定」に1つ（Q のツールの決まり。q-oqrn の ux.md A7）
         renderButton({ label: "設定（週のはじまり・色）", icon: "settings", action: "open-settings-fold" })
       ].join("")
     });
   }
 
-  // ページの下の「⚙️ 設定」の中身（週のはじまり・表示の色）を描きなおす（index.html の #settings-body）
+  // ページの下の「設定」の中身（週のはじまり・表示の色）を描きなおす（index.html の #settings-body）
   function renderSettingsFold() {
     const host = document.getElementById("settings-body");
     if (!host) {

@@ -134,7 +134,7 @@ export function renderInputUtilityActions() {
   ].join("");
 }
 
-// 1行が1つのメニュー（Q キットの一覧の行）。押すと入る。保存したものだけ右に 🗑（消す）
+// 1行が1つのメニュー（Q キットの一覧の行）。押すと入る。保存したものだけ右にごみ箱（消す）
 export function renderMenuRow(menu, deletable) {
   const names = (menu.exercises || [])
     .map(function (exercise) {
