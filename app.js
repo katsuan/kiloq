@@ -1,13 +1,10 @@
 // キロっく（kiloQ）：入口。画面（入力・送信プレビュー・履歴・シート）を作り、ボタン・入力を受け、部品（js/）をつなぐ。
 // index.html から読む（type="module"）。ファイルの一覧は README
 import {
-  buildWorkoutFlexMessage as buildWorkoutFlexPayload,
-  getCreditText
+  buildWorkoutFlexMessage as buildWorkoutFlexPayload
 } from "./js/card.js?v=202611021614";
 import {
-  EXERCISE_CATALOG,
-  MENU_PRESETS,
-  MUSCLE_FILTERS
+  MENU_PRESETS
 } from "./js/catalog.js?v=202611021614";
 import {
   renderButton,
@@ -28,8 +25,14 @@ import {
   escapeHtml,
   formatLocaleMetric
 } from "./js/format.js?v=202611021614";
-import { buildHistoryCsv } from "./js/history-csv.js?v=202611021614";
-import { amountLabel, LANDMARKS, weightLabel } from "./js/lifted.js?v=202611021614";
+import {
+  buildHistoryCsv
+} from "./js/history-csv.js?v=202611021614";
+import {
+  amountLabel,
+  LANDMARKS,
+  weightLabel
+} from "./js/lifted.js?v=202611021614";
 import {
   buildLineAppUrl,
   getLiffEnvironment,
@@ -66,7 +69,10 @@ import {
   loadLifted,
   saveLifted
 } from "./js/store.js?v=202611021614";
-import { startOfWeek, weekStreak } from "./js/streak.js?v=202611021614";
+import {
+  startOfWeek,
+  weekStreak
+} from "./js/streak.js?v=202611021614";
 import {
   applyTheme,
   getFlexTheme as buildFlexTheme,
@@ -78,7 +84,6 @@ import {
   buildMenuFromWorkout,
   calculateWorkout,
   countNamedExercises,
-  countValidSets,
   createEmptyExercise,
   createEmptySet,
   createEmptyWorkout,
@@ -92,9 +97,42 @@ import {
   isMaxRmSet,
   resolveWorkoutTitle,
   sanitizeWorkout as sanitizeWorkoutModel,
-  summarizeMenu,
   TEXT_LIMITS
 } from "./js/workout.js?v=202611021614";
+import {
+  renderBubbleCarousel,
+  renderExerciseStatCard,
+  renderRankingCard,
+  renderWorkoutExerciseStats
+} from "./js/view-preview.js?v=202611021614";
+import {
+  applyCatalogToExercise,
+  getDefaultExpandedExerciseId,
+  getUserInitial,
+  renderExercisePicker,
+  renderExerciseSummary,
+  renderInputUtilityActions,
+  renderMenuRow,
+  renderSetRow,
+  stepSetValue
+} from "./js/view-input.js?v=202611021614";
+import {
+  copyText,
+  createShareSnapshot,
+  formatKg,
+  formatShortDate,
+  historyMonthKey,
+  historyMonthLabel,
+  isDebugModeEnabled,
+  isNamed,
+  isRankingEnabled,
+  loadPreviewOpen,
+  renderStreak,
+  savePreviewOpen,
+  setPanelVisibility,
+  showLatestWeeks,
+  takeUrlParam
+} from "./js/helpers.js?v=202611021614";
 
 (function () {
 
@@ -149,23 +187,6 @@ import {
   });
 
   document.addEventListener("DOMContentLoaded", initApp);
-
-  // デバッグモード（Flex JSON のコピーなど）かを返す
-  function isDebugModeEnabled() {
-    return Boolean(FEATURE_FLAGS.enableDebugMode);
-  }
-
-  // ランキング（デバッグ用）を出すかを返す
-  function isRankingEnabled() {
-    return isDebugModeEnabled() && Boolean(FEATURE_FLAGS.enableRanking);
-  }
-
-  // 種目の一覧から id の種目を探して返す
-  function findCatalogExercise(catalogId) {
-    return EXERCISE_CATALOG.find(function (item) {
-      return item.id === catalogId;
-    });
-  }
 
   // はじめに動かす：設定・作りかけ・履歴・メニューを読み、画面を作り、LINE とつなぐ（つながらないときも使える）
   async function initApp() {
@@ -294,24 +315,6 @@ import {
     });
     appState.liff = Object.assign({}, appState.liff, nextState);
     return appState.liff;
-  }
-
-  // 送信プレビューを開いておくか（端末に覚える。保存できなくても開いた状態で動く）
-  function loadPreviewOpen() {
-    try {
-      return window.localStorage.getItem(STORAGE_KEYS.previewOpen) !== "false";
-    } catch (error) {
-      return true;
-    }
-  }
-
-  // 送信プレビューを開いているかを端末に覚える（覚えられなくても切りかわる）
-  function savePreviewOpen(isOpen) {
-    try {
-      window.localStorage.setItem(STORAGE_KEYS.previewOpen, String(isOpen));
-    } catch (error) {
-      // 保存できなくても表示はそのまま切り替わる
-    }
   }
 
   // 表示設定の色を変えて、画面と端末に入れる（色でなければ何もしない）
@@ -456,19 +459,6 @@ import {
     renderInput();
     renderPreview();
     notify("セットを消しました。", "info", undo);
-  }
-
-  // 種目の一覧から選んだ種目の名前・部位を、入力中の種目に入れる
-  function applyCatalogToExercise(exercise, catalogId) {
-    const catalogExercise = findCatalogExercise(catalogId);
-    if (!catalogExercise) {
-      return;
-    }
-    exercise.catalogId = catalogExercise.id;
-    exercise.isCustom = false;
-    exercise.name = catalogExercise.name;
-    exercise.primaryMuscle = catalogExercise.muscle;
-    exercise.selectionMuscle = catalogExercise.muscle;
   }
 
   // 種目えらびの部位の絞りこみを変える
@@ -767,11 +757,6 @@ import {
     return appState.lifted ? appState.lifted.total : 0;
   }
 
-  // 「1,234 kg」
-  function formatKg(kg) {
-    return amountLabel(kg);
-  }
-
   // 「🐘 ゾウ 0.9 頭分」（重さを、いちばん近い目じるしでくらべる。0 kg なら ""）
   function compareLabel(kg) {
     return milestones ? milestones.compareLabel(kg) : "";
@@ -822,19 +807,6 @@ import {
       title: "これまでに持ち上げた重さ",
       hint: "重さ × 回数の合計です（自重のセットは入りません）。記録を消しても、この合計は減りません（この端末で送った記録から）。"
     });
-  }
-
-  // 送る記録の写し（新しい ID・タイトル・時刻）を作って返す
-  function createShareSnapshot(workout) {
-    const now = new Date().toISOString();
-    return hydrateWorkout(
-      Object.assign({}, workout, {
-        workoutId: generateId("workout"),
-        title: resolveWorkoutTitle(workout.title, workout.user),
-        createdAt: now,
-        updatedAt: now
-      })
-    );
   }
 
   // 入力の画面（始め方・種目のカード・下の操作）を描きなおす
@@ -892,12 +864,6 @@ import {
       return '<p class="talk-preview-note history-full-note">履歴はあと1件でいっぱい（' + MAX_HISTORY_ITEMS + " 件まで）。そのあとは、送るたびにいちばん古い記録が消えます。</p>";
     }
     return "";
-  }
-
-  // 「2026-10-01」→「10/1」（読めなければ ""）
-  function formatShortDate(date) {
-    const m = String(date || "").match(/^\d{4}-(\d{2})-(\d{2})$/);
-    return m ? Number(m[1]) + "/" + Number(m[2]) : "";
   }
 
   // 送信プレビュー（送るカードの見本・この記録の集計）を描きなおす。作りかけも端末に残す
@@ -1015,17 +981,6 @@ import {
     ].join("");
 
     elements.tabHistory.innerHTML = html;
-  }
-
-  // 記録の月（"2026-10"、日付がなければ "none"）を返す
-  function historyMonthKey(workout) {
-    const date = String((workout && workout.date) || "");
-    return /^\d{4}-\d{2}/.test(date) ? date.slice(0, 7) : "none";
-  }
-
-  // 月の見出し（「2026年10月」「日付なし」）を返す
-  function historyMonthLabel(key) {
-    return key === "none" ? "日付なし" : Number(key.slice(0, 4)) + "年" + Number(key.slice(5, 7)) + "月";
   }
 
   // ---- 記録のダウンロード（CSV。中身は js/history-csv.js） ----
@@ -1509,15 +1464,6 @@ import {
     scrollToPanel(tab);
   }
 
-  // タブの画面を出す（ランキングはデバッグのときだけ）
-  function setPanelVisibility(tabName, element) {
-    if (!element) {
-      return;
-    }
-    const shouldShow = tabName === "ranking" ? isRankingEnabled() : true;
-    element.hidden = !shouldShow;
-  }
-
   // 下の送る帯（送るボタン・デバッグのコピー・ブラウザ版の案内）を描きなおす
   function updateActionBar() {
     if (!elements.actionBar || !elements.shareButton || !elements.copyJsonButton) {
@@ -1587,18 +1533,6 @@ import {
     if (!loginWithLine()) {
       notify("ログインを始められませんでした。少し待って、もう一度押してね。", "warn");
     }
-  }
-
-  // URL の ?name= を読んで、URL からは消す（開きなおしても、もう一度入れない）。なければ null
-  function takeUrlParam(name) {
-    const url = new URL(window.location.href);
-    if (!url.searchParams.has(name)) {
-      return null;
-    }
-    const value = url.searchParams.get(name) || "";
-    url.searchParams.delete(name);
-    history.replaceState(null, "", url);
-    return value;
   }
 
   // 送られたカードの「同じメニューでやる」（?menu=）。リンクがあったら true（読めなかったときも、その知らせを残すため）。
@@ -1924,106 +1858,6 @@ import {
     ].join("");
   }
 
-  // 1セット分の行。スマホで押しやすいよう2段にし、kg・回数は −／＋ でも変えられる
-  //   上段: 何セット目・推定RM・消す  下段: kg と回数
-  function renderSetRow(exercise, set, setIndex) {
-    const exerciseId = exercise.exerciseId;
-    const canRemoveSet = exercise.sets.length > 1;
-    const ids =
-      'data-exercise-id="' + escapeHtml(exerciseId) + '" data-set-id="' + escapeHtml(set.setId) + '"';
-    return [
-      '<div class="set-row">',
-      '  <div class="set-row-head">',
-      '    <span class="set-badge">' + (setIndex + 1) + "セット目</span>",
-      '    <div class="set-head-meta' +
-        (isMaxRmSet(exercise, set) ? " is-max-rm" : "") +
-        '" data-set-meta="estimated1rm" ' +
-        ids +
-        '><small class="metric-label">推定RM</small><strong class="metric-value" data-set-summary="estimated1rm" ' +
-        ids +
-        ">" +
-        escapeHtml(hasEstimated1rm(set) ? formatLocaleMetric(set.estimated1rm, "kg", 1) : "-") +
-        "</strong></div>",
-      renderButton({
-        label: "消す",
-        className: "is-danger delete-pill",
-        action: "remove-set",
-        title: "このセットを消す",
-        disabled: !canRemoveSet,
-        attrs: {
-          "data-exercise-id": exerciseId,
-          "data-set-id": set.setId
-        }
-      }),
-      "  </div>",
-      '  <div class="set-row-inputs">',
-      renderSetStepper({ field: "weight", unit: "kg", step: 2.5, inputmode: "decimal", inputStep: "0.5", value: set.weight, ids: ids }),
-      renderSetStepper({ field: "reps", unit: "回", step: 1, inputmode: "numeric", inputStep: "1", value: set.reps, ids: ids }),
-      "  </div>",
-      "</div>"
-    ].join("");
-  }
-
-  // 数値入力の左右に −／＋。押すと入力欄の値を変えて input イベントを出すので、手入力と同じ処理で反映される
-  function renderSetStepper(options) {
-    const label = options.unit === "kg" ? "重さ" : "回数";
-    return [
-      '<div class="set-stepper">',
-      '  <button class="stepper-button" data-action="step-set" data-set-field="' +
-        options.field +
-        '" data-step="' +
-        -options.step +
-        '" type="button" aria-label="' +
-        label +
-        "を" +
-        options.step +
-        '減らす">−</button>',
-      '  <label class="stepper-field">',
-      '    <input class="stepper-input" aria-label="' +
-        label +
-        "（" +
-        options.unit +
-        '）" data-set-field="' +
-        options.field +
-        '" ' +
-        options.ids +
-        ' type="number" inputmode="' +
-        options.inputmode +
-        '" step="' +
-        options.inputStep +
-        '" min="0" placeholder="0" value="' +
-        escapeHtml(String(options.value ?? "")) +
-        '" />',
-      '    <span class="stepper-unit">' + options.unit + "</span>",
-      "  </label>",
-      '  <button class="stepper-button" data-action="step-set" data-set-field="' +
-        options.field +
-        '" data-step="' +
-        options.step +
-        '" type="button" aria-label="' +
-        label +
-        "を" +
-        options.step +
-        '増やす">＋</button>',
-      "</div>"
-    ].join("");
-  }
-
-  // セットの − ／ ＋ を押したとき、重さ・回数を1目もり動かす
-  function stepSetValue(button) {
-    const row = button.closest(".set-row");
-    const field = button.getAttribute("data-set-field");
-    const input = row && row.querySelector('input[data-set-field="' + field + '"]');
-    if (!input) {
-      return;
-    }
-    const step = Number(button.getAttribute("data-step")) || 0;
-    const next = Math.max(0, (Number(input.value) || 0) + step);
-    // 重さは 0.5kg 刻み、回数は整数にそろえる
-    input.value = String(field === "reps" ? Math.round(next) : Math.round(next * 2) / 2);
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-  }
-
   // 種目のまとめ（セットの数・推定1RM）だけを描きなおす（入力中は全体を描きなおさない）
   function syncRenderedSetSummary(exerciseId) {
     const exercise = findExercise(exerciseId);
@@ -2076,16 +1910,6 @@ import {
     return '<div class="input-start-row is-' + buttons.length + '" role="group" aria-label="入力の始め方">' + buttons.join("") + "</div>";
   }
 
-  // 入力の画面のいちばん下の小さな操作（サンプル・リセット）の HTML を返す
-  function renderInputUtilityActions() {
-    return [
-      // 補助的な操作は一番下に小さく（「履歴から始める」は見出しの横へ移した）
-      '<div class="input-utility-row">',
-      '  <button class="text-link-button" data-action="sample-workout" type="button">サンプルを入れる</button>',
-      "</div>"
-    ].join("");
-  }
-
   // 見出しの右の表示設定のボタン（LINE の写真か頭文字）の HTML を返す
   function renderSettingsTrigger() {
     const profile = appState.liff.profile || DEFAULT_USER;
@@ -2104,12 +1928,6 @@ import {
     appState.ui.settingsModalOpen = true;
     renderInput();
     showLatestWeeks();
-  }
-
-  // 名前のある LINE のプロフィールか（名前なし・anonymous でない）
-  function isNamed(profile) {
-    const name = profile ? String(profile.displayName || "").trim().toLowerCase() : "";
-    return !!name && name !== "anonymous";
   }
 
   // シートのいちばん上：だれでログインしているか・LINE 版とブラウザ版の記録のちがい（つづく・しょくじと同じ言葉。shared/line-me.js の describe）
@@ -2284,26 +2102,6 @@ import {
     ].join("");
   }
 
-  // 草グラフは右が今週。狭い画面では横に動かせるので、はじめは右のはし（今週）を見せる
-  function showLatestWeeks() {
-    document.querySelectorAll(".grass-grid").forEach(function (grid) {
-      grid.scrollLeft = grid.scrollWidth;
-    });
-  }
-
-  // 記録した週の連続（いま・最長）の1行の HTML を返す。今週まだなら「今週やれば ◯週」
-  function renderStreak(streak) {
-    // 「最長 3週」は1かたまりで折り返す（320px で「最／長」と折れないように）
-    const best = ' ・ <span class="ls-nowrap">最長 <b>' + streak.best + "週</b></span>";
-    if (streak.thisWeek) {
-      return '<p class="grass-streak">' + lineIcon("flame", true) + "いま <b>" + streak.current + "週</b> 連続" + best + "</p>";
-    }
-    if (streak.current > 0) {
-      return '<p class="grass-streak">' + lineIcon("flame", true) + "<b>" + streak.current + '週</b> 連続中<span class="ls-nowrap">（今週やれば ' + (streak.current + 1) + "週）</span>" + best + "</p>";
-    }
-    return '<p class="grass-streak">今週やると、連続がはじまります' + (streak.best ? best : "") + "</p>";
-  }
-
   // ---- トレーニングメニュー（テンプレート） ----
 
   // トレーニングメニューのシートを開く（名前の欄には、入力中のタイトルを入れておく）
@@ -2389,27 +2187,6 @@ import {
     };
   }
 
-  // 1行が1つのメニュー（Q キットの一覧の行）。押すと入る。保存したものだけ右に 🗑（消す）
-  function renderMenuRow(menu, deletable) {
-    const names = (menu.exercises || [])
-      .map(function (exercise) {
-        return exercise.name;
-      })
-      .join("・");
-    const menuId = escapeHtml(menu.menuId);
-    return [
-      '<div class="ls-list-row">',
-      '  <button class="ls-list-item" data-action="apply-menu" data-menu-id="' + menuId + '" type="button" title="' + escapeHtml("「" + menu.name + "」を入れる") + '">',
-      '    <span class="menu-name">' + escapeHtml(menu.name) + '<span class="menu-meta">' + escapeHtml(summarizeMenu(menu)) + "</span></span>",
-      "    <small>" + escapeHtml(names) + "</small>",
-      "  </button>",
-      deletable
-        ? '  <button class="ls-icon-button" data-action="delete-menu" data-menu-id="' + menuId + '" type="button" aria-label="' + escapeHtml("「" + menu.name + "」を消す") + '">' + lineIcon("delete") + "</button>"
-        : "",
-      "</div>"
-    ].join("");
-  }
-
   // トレーニングメニューのシート（保存・保存したもの・おすすめ）の HTML を返す。閉じているときは ""
   function renderMenuSheet() {
     if (!appState.ui.menuModalOpen) {
@@ -2457,15 +2234,6 @@ import {
         "</div>"
       ].join("")
     });
-  }
-
-  // 名前の頭文字（写真がないときに出す。名前がなければ「W」）を返す
-  function getUserInitial(displayName) {
-    const normalized = String(displayName || "").trim();
-    if (!normalized) {
-      return "W";
-    }
-    return normalized.slice(0, 1).toUpperCase();
   }
 
   // 入力中の帯（いま開いている種目の名前とまとめ）の HTML を返す
@@ -2530,228 +2298,10 @@ import {
     ].join("");
   }
 
-  // 記録の種目ごとの集計の HTML を返す
-  function renderWorkoutExerciseStats(workout) {
-    const exercises = getNamedExercises(workout);
-    return exercises.length ? '<div class="stats-grid">' + exercises.map(renderExerciseStatCard).join("") + "</div>" : "";
-  }
-
   // 履歴の記録を開く・たたむ
   function toggleHistoryCard(workoutId) {
     appState.ui.openHistoryIds[workoutId] = !appState.ui.openHistoryIds[workoutId];
     renderHistory();
-  }
-
-  // 種目が多いと LINE ではカードが横に並ぶ（カルーセル）。プレビューも同じく横スクロールで見せる
-  function renderBubbleCarousel(workout, bubbles) {
-    const items = bubbles.map(function (bubble) {
-      return renderBubblePreview(workout, bubble);
-    });
-    if (items.length <= 1) {
-      return items.join("");
-    }
-    return [
-      '<div class="talk-carousel" tabindex="0" aria-label="カード ' + items.length + '枚（横にスクロール）">',
-      items
-        .map(function (item) {
-          return '<div class="talk-carousel-item">' + item + "</div>";
-        })
-        .join(""),
-      "</div>"
-    ].join("");
-  }
-
-  // 送るカード1枚の見本（見出し・種目・下の帯）の HTML を、カードの中身から作って返す
-  function renderBubblePreview(workout, bubble) {
-    const exerciseBoxes = bubble.body && bubble.body.contents ? bubble.body.contents : [];
-    const headerContents = bubble.header && bubble.header.contents ? bubble.header.contents : [];
-    const headerMetaBox = headerContents[0] && headerContents[0].contents ? headerContents[0] : null;
-    const dateText = headerMetaBox && headerMetaBox.contents[0] ? headerMetaBox.contents[0].text : workout.date || "-";
-    const userText =
-      headerMetaBox && headerMetaBox.contents[1] ? headerMetaBox.contents[1].text : "";
-    const titleText = headerContents[1] ? headerContents[1].text : resolveWorkoutTitle(workout.title, workout.user);
-    // 下の帯のボタン（最後のカードの「同じメニューでやる」）も、送るカードと同じに出す
-    const footerButtons = (bubble.footer && bubble.footer.contents ? bubble.footer.contents : []).filter(function (item) {
-      return item.type === "button" && item.action && item.action.label;
-    });
-    return [
-      '<section class="preview-bubble">',
-      '  <div class="preview-bubble-header">',
-      '    <div class="preview-header-meta">',
-      "      <div>" + escapeHtml(dateText) + "</div>",
-      userText ? '      <div class="preview-note-user">' + escapeHtml(userText) + "</div>" : "",
-      "    </div>",
-      '    <div class="preview-bubble-title">' + escapeHtml(titleText) + "</div>",
-      "  </div>",
-      exerciseBoxes
-        .map(function (box) {
-          // 「ほか N 種目」（カードに入らなかった種目）
-          if (box.type !== "box") {
-            return '<div class="preview-exercise-note">' + escapeHtml(box.text || "") + "</div>";
-          }
-          const headerBox = box.contents[0] || { contents: [] };
-          const title = headerBox.contents[0] ? headerBox.contents[0].text : "";
-          const summary = headerBox.contents[1] ? headerBox.contents[1].text : "";
-          const bodyLines = box.contents.slice(1);
-          return [
-            '<article class="preview-exercise">',
-            '  <div class="preview-exercise-head">',
-            "    <h4>" + escapeHtml(title) + "</h4>",
-            '    <span class="preview-exercise-rm">' + escapeHtml(summary) + "</span>",
-            "  </div>",
-            '  <div class="preview-sets">',
-            bodyLines
-              .map(function (line) {
-                if (line.type === "box") {
-                  const numberBox = line.contents[0] || {};
-                  const left = numberBox.contents && numberBox.contents[0] ? numberBox.contents[0].text : numberBox.text || "";
-                  const main = line.contents[1] ? line.contents[1].text : "";
-                  const badge =
-                    line.contents[2] && line.contents[2].contents && line.contents[2].contents[0]
-                      ? line.contents[2].contents[0].text
-                      : "";
-                  return (
-                    '<div class="preview-set-line"><span class="preview-set-number">' +
-                    escapeHtml(left) +
-                    '</span><span class="preview-set-main">' +
-                    escapeHtml(main) +
-                    "</span>" +
-                    (badge ? '<strong class="preview-rm-badge">' + escapeHtml(badge) + "</strong>" : "") +
-                    "</div>"
-                  );
-                }
-                return '<div class="preview-exercise-note">' + escapeHtml(line.text || "") + "</div>";
-              })
-              .join(""),
-            "  </div>",
-            "</article>"
-          ].join("");
-        })
-        .join(""),
-      '  <div class="preview-bubble-footer">' +
-      footerButtons
-        .map(function (button) {
-          return '<span class="preview-bubble-button">' + escapeHtml(button.action.label) + "</span>";
-        })
-        .join("") +
-      escapeHtml(getCreditText()) +
-      "</div>",
-      "</section>"
-    ].join("");
-  }
-
-  // ランキングのカード（デバッグ用）の HTML を返す
-  function renderRankingCard(title, rows, unit) {
-    return [
-      '<article class="ranking-card">',
-      "  <header>",
-      "    <h4>" + escapeHtml(title) + "</h4>",
-      "  </header>",
-      rows && rows.length
-        ? '  <div class="ranking-stack">' +
-        rows
-          .map(function (row, index) {
-            return [
-              '<div class="ranking-row">',
-              '  <div><strong>#' +
-              (index + 1) +
-              "</strong> " +
-              escapeHtml(row.name) +
-              '<div class="ranking-meta">' +
-              escapeHtml(row.label || "") +
-              "</div></div>",
-              '  <strong>' + escapeHtml(formatLocaleMetric(row.value, unit, 1)) + "</strong>",
-              "</div>"
-            ].join("");
-          })
-          .join("") +
-        "  </div>"
-        : '<p class="ls-hint">ランキングデータはまだありません。</p>',
-      "</article>"
-    ].join("");
-  }
-
-  // 種目1つの集計のカード（セット・ボリューム・推定1RM）の HTML を返す
-  function renderExerciseStatCard(exercise) {
-    const validSetCount = countValidSets(exercise);
-    const caption = [String(validSetCount) + "セット"];
-
-    if (exercise.primaryMuscle) {
-      caption.push(exercise.primaryMuscle);
-    }
-
-    return [
-      '<article class="summary-card">',
-      '  <div class="summary-card-main">',
-      '    <strong class="summary-name">' + escapeHtml(exercise.name || "未入力種目") + "</strong>",
-      '    <span class="summary-inline-meta">' + escapeHtml(caption.join(" / ")) + "</span>",
-      "  </div>",
-      '  <strong class="summary-value">' +
-        escapeHtml(exercise.maxEstimated1rm > 0 ? formatLocaleMetric(exercise.maxEstimated1rm, "kg", 1) : "-") +
-        "</strong>",
-      "</article>"
-    ].join("");
-  }
-
-  // 種目を選ぶところ：1. 部位（チップ） → 2. その部位の種目（チップ）か、自由入力
-  function renderExercisePicker(exercise) {
-    const idAttrs = { "data-exercise-id": exercise.exerciseId };
-    const muscleChips = MUSCLE_FILTERS.filter(function (muscle) {
-      return muscle !== "all";
-    })
-      .map(function (muscle) {
-        return renderChip({
-          label: muscle,
-          action: "set-exercise-muscle",
-          pressed: exercise.selectionMuscle === muscle,
-          attrs: Object.assign({ "data-muscle": muscle }, idAttrs)
-        });
-      })
-      .join("");
-
-    const muscle = exercise.selectionMuscle;
-    const candidates =
-      muscle && muscle !== "その他"
-        ? EXERCISE_CATALOG.filter(function (item) {
-            return item.muscle === muscle;
-          })
-        : [];
-
-    const options = candidates.length
-      ? '<div class="ls-chips">' +
-        candidates
-          .map(function (item) {
-            return renderChip({
-              label: item.name,
-              action: "choose-exercise-card",
-              attrs: Object.assign({ "data-catalog-id": item.id }, idAttrs)
-            });
-          })
-          .join("") +
-        "</div>"
-      : '<p class="ls-hint">' +
-        (muscle === "その他"
-          ? "自由入力で種目を追加します。"
-          : muscle
-            ? "この部位には候補がまだありません。手入力で追加できます。"
-            : "先に部位を選ぶと、候補の種目が表示されます。") +
-        "</p>";
-
-    return [
-      '<div class="exercise-picker">',
-      '  <div class="ls-field">',
-      '    <span class="ls-label">部位</span>',
-      '    <div class="ls-chips">' + muscleChips + "</div>",
-      "  </div>",
-      '  <div class="ls-field">',
-      '    <span class="ls-label">種目</span>',
-      options,
-      muscle
-        ? renderButton({ label: "＋自由入力", className: "custom-exercise-button", action: "start-custom-exercise", attrs: idAttrs })
-        : "",
-      "  </div>",
-      "</div>"
-    ].join("");
   }
 
   // その種目のカードが開いているかを返す
@@ -2762,32 +2312,9 @@ import {
     return appState.ui.expandedExerciseId === exerciseId;
   }
 
-  // はじめに開いておく種目（種目を選んだ最初のもの）の id を返す
-  function getDefaultExpandedExerciseId(exercises) {
-    const matchedExercise = (exercises || []).find(function (exercise) {
-      return Boolean(exercise && (exercise.catalogId || exercise.isCustom));
-    });
-    return matchedExercise ? matchedExercise.exerciseId : "";
-  }
-
   // その種目のメモの欄が開いているかを返す
   function isExerciseMemoOpen(exerciseId) {
     return Boolean(appState.ui.memoOpenExerciseIds[exerciseId]);
-  }
-
-  // 種目のまとめの文字（「3セット・RM 75kg」など）を返す
-  function renderExerciseSummary(exercise) {
-    const validSetCount = countValidSets(exercise);
-    const summaryParts = [];
-
-    if (validSetCount > 0) {
-      summaryParts.push(validSetCount + "セット");
-    }
-    if (exercise.maxEstimated1rm > 0) {
-      summaryParts.push("RM " + formatLocaleMetric(exercise.maxEstimated1rm, "kg", 1));
-    }
-
-    return summaryParts.join(" / ");
   }
 
   // メモのボタンの文字（「＋メモ追加」「メモ編集」「メモをたたむ」）を返す
@@ -2888,19 +2415,6 @@ import {
     } else {
       notify("クリップボードへコピーできなかったため、JSONプレビューを開いています。", "warn");
     }
-  }
-
-  // 文字をコピーする。できたら true
-  async function copyText(text) {
-    try {
-      if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
-        await navigator.clipboard.writeText(text);
-        return true;
-      }
-    } catch (error) {
-      console.warn("Clipboard copy failed:", error);
-    }
-    return false;
   }
 
 })();
