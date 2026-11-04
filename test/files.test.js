@@ -42,9 +42,9 @@ test("LINE 版の部品は Q キット（shared/liff.js・line-me.js）。app.js
   assert.match(html, /<div class="ls-outside" id="line-help" hidden><\/div>/);
 });
 
-test("設定はページの下の「⚙️ 設定」（id=settings）に1つ（Q のツールの決まり ux.md A7）", () => {
+test("設定はページの下の「設定」（id=settings。印は線アイコン）に1つ（Q のツールの決まり ux.md A7）", () => {
   const html = read("index.html");
-  assert.match(html, /<details class="ls-fold settings-fold" id="settings">[\s\S]*?⚙️<\/span>設定[\s\S]*?id="settings-body"/);
+  assert.match(html, /<details class="ls-fold settings-fold" id="settings">[\s\S]*?data-icon="settings" aria-hidden="true"><\/span>設定[\s\S]*?id="settings-body"/); // 印は Q キットの線アイコン（G3・L4）
   assert.ok(html.indexOf('id="settings"') < html.indexOf("data-tool-share"), "紹介の窓口より上");
   const app = read("app.js");
   assert.match(app, /"open-settings-fold": function/);

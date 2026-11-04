@@ -256,13 +256,8 @@ body:not(.ls-has-sendbar) .ls-toast {
 }
 
 /* ---- Q キットの部品の上書き（Q キットがそろえたら消す） ----
- * 何もないときの知らせは、ほかの文と同じく左にそろえる。選んでいるチップは、色の面ではなく濃いふちと字で
+ * 選んでいるチップは、色の面ではなく濃いふちと字で（Q キットはまだツールの色。ユーザーが選んだ形。Q キットがそろえたら消す）
  */
-.ls-empty {
-  justify-items: start;
-  text-align: left;
-}
-
 .ls-chip[aria-pressed="true"]:not(.color),
 .ls-chip[aria-checked="true"]:not(.color),
 .ls-chip.is-active:not(.color),
@@ -283,4 +278,20 @@ body:not(.ls-has-sendbar) .ls-toast {
   :root[data-ls-dark="auto"] .memo-toggle-button {
     background: rgba(255, 255, 255, 0.06);
   }
+}
+
+/* 文の頭の線アイコン：字との間（Q キットの ls-button の中は gap があるので付けない） */
+.in-text {
+  margin-right: 4px;
+}
+
+/* 始め方のボタン・開閉の印の線アイコンの大きさ */
+.input-start-icon.ls-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.disclosure-chevron.ls-icon {
+  width: 16px;
+  height: 16px;
 }

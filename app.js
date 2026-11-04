@@ -16,7 +16,8 @@ import {
   renderEmpty,
   renderField,
   renderSheet,
-  renderStartButton
+  renderStartButton,
+  lineIcon
 } from "./js/components.js?v=202611021614";
 import {
   buildSampleWorkout,
@@ -412,7 +413,7 @@ import {
     delete appState.ui.memoOpenExerciseIds[exerciseId];
     touchWorkout();
     renderWorkoutViews();
-    notify("🗑 " + (exercise && exercise.name ? "「" + exercise.name + "」" : "種目") + "を消しました。", "info", undo);
+    notify("" + (exercise && exercise.name ? "「" + exercise.name + "」" : "種目") + "を消しました。", "info", undo);
   }
 
   // 種目にセットを1つ足す（前のセットの重さ・回数を引きつぐ）
@@ -454,7 +455,7 @@ import {
     touchWorkout();
     renderInput();
     renderPreview();
-    notify("🗑 セットを消しました。", "info", undo);
+    notify("セットを消しました。", "info", undo);
   }
 
   // 種目の一覧から選んだ種目の名前・部位を、入力中の種目に入れる
@@ -692,7 +693,7 @@ import {
         );
       }
     } else {
-      notify("ブラウザ版では送れません。下の「🔑 ログインして送る」か「📱 LINE 版で開く」から送れます。", "warn");
+      notify("ブラウザ版では送れません。下の「ログインして送る」か「LINE 版で開く」から送れます。", "warn");
     }
   }
 
@@ -733,7 +734,7 @@ import {
       const name = [formatShortDate(dropped[0].date), String(dropped[0].title || "").trim()].filter(Boolean).join(" ");
       window.setTimeout(function () {
         if (window.LineShareUI && typeof window.LineShareUI.toast === "function") {
-          window.LineShareUI.toast("📦 履歴がいっぱいなので、いちばん古い記録" + (name ? "（" + name + "）" : "") + "を消しました。", {
+          window.LineShareUI.toast("履歴がいっぱいなので、いちばん古い記録" + (name ? "（" + name + "）" : "") + "を消しました。", {
             actionLabel: "控えを保存",
             onAction: function () {
               void downloadHistory("", dropped);
@@ -805,14 +806,14 @@ import {
   function renderLiftedLine() {
     const total = liftedTotal();
     if (!(total > 0) || !milestones) return "";
-    return '<p class="ls-hint small history-lifted">🏋️ これまでの合計 <b>' + escapeHtml(formatKg(total)) + "</b>（" + escapeHtml(compareLabel(total)) + "）。記録を消しても減りません。</p>";
+    return '<p class="ls-hint small history-lifted">' + lineIcon("dumbbell", true) + "これまでの合計 <b>" + escapeHtml(formatKg(total)) + "</b>（" + escapeHtml(compareLabel(total)) + "）。記録を消しても減りません。</p>";
   }
 
   // 「あなたの記録」のシート：これまでの合計・次の目じるしまでの棒・重さの目じるしの表（越えたものに ✅、次だけ「あと ◯ kg」、その先は大きな物だけ見せてあいだはかくす。押すと「いま ◯ 頭分」）
   function renderLifted() {
     if (!FEATURE_FLAGS.enableLocalHistory || !milestones) return "";
     return milestones.tableHtml(liftedTotal(), {
-      title: "🏋️ これまでに持ち上げた重さ",
+      title: "これまでに持ち上げた重さ",
       hint: "重さ × 回数の合計です（自重のセットは入りません）。記録を消しても、この合計は減りません（この端末で送った記録から）。"
     });
   }
@@ -878,7 +879,7 @@ import {
       return (
         '<p class="talk-preview-note is-warn history-full-note">履歴は ' + MAX_HISTORY_ITEMS + " 件まで。送ると、いちばん古い記録" +
         (name ? "（" + escapeHtml(name) + "）" : "") +
-        'が消えます。<button class="text-link-button" data-action="download-history" type="button">⬇️ 先に控えをダウンロード</button></p>'
+        'が消えます。<button class="text-link-button" data-action="download-history" type="button">' + lineIcon("save", true) + '先に控えをダウンロード</button></p>'
       );
     }
     if (list.length === MAX_HISTORY_ITEMS - 1) {
@@ -948,12 +949,12 @@ import {
   // 履歴の画面（月ごとのまとまり・ダウンロード・10 件までの説明）を描きなおす
   function renderHistory() {
     if (!FEATURE_FLAGS.enableLocalHistory) {
-      elements.tabHistory.innerHTML = renderEmpty("⚙️", "localStorage 履歴は無効化されています。js/line-config.js の feature flag で切り替えできます。");
+      elements.tabHistory.innerHTML = renderEmpty("settings", "localStorage 履歴は無効化されています。js/line-config.js の feature flag で切り替えできます。");
       return;
     }
 
     if (!appState.history.length) {
-      elements.tabHistory.innerHTML = renderEmpty("🕘", "まだ履歴がありません。カードで送ると、ここに出ます（この端末に、新しいものから " + MAX_HISTORY_ITEMS + " 件まで）。") + renderLiftedLine();
+      elements.tabHistory.innerHTML = renderEmpty("clock", "まだ履歴がありません。カードで送ると、ここに出ます（この端末に、新しいものから " + MAX_HISTORY_ITEMS + " 件まで）。") + renderLiftedLine();
       return;
     }
 
@@ -978,7 +979,7 @@ import {
         escapeHtml(String(appState.history.length)) + " / " + MAX_HISTORY_ITEMS + "件の記録" +
         (appState.history.length >= MAX_HISTORY_ITEMS ? "（いっぱい。次に送ると、いちばん古い記録が消えます）" : appState.history.length === MAX_HISTORY_ITEMS - 1 ? "（あと1件でいっぱい）" : "") +
         "</p>",
-      renderButton({ label: "⬇ 記録をダウンロード", action: "download-history" }),
+      renderButton({ label: "記録をダウンロード", icon: "save", action: "download-history" }),
       "</div>",
       renderLiftedLine(),
       '<p class="ls-hint small history-limit">この端末に残るのは、新しいものから ' + MAX_HISTORY_ITEMS + " 件までです。それより古い記録は消えるので、残したいときは「記録をダウンロード」で控えを。</p>",
@@ -997,7 +998,7 @@ import {
             '  <div class="ls-fold-body">',
             '    <div class="history-stack">' + list.map(renderHistoryCard).join("") + "</div>",
             '    <div class="history-month-tools">',
-            renderButton({ label: "⬇ この月をダウンロード", action: "download-history", attrs: { "data-month": key } }),
+            renderButton({ label: "この月をダウンロード", icon: "save", action: "download-history", attrs: { "data-month": key } }),
             "    </div>",
             "  </div>",
             "</details>"
@@ -1084,7 +1085,7 @@ import {
     }
 
     if (!appState.rankingData) {
-      elements.tabRanking.innerHTML = renderEmpty("⏳", "ランキングを読み込み中です。");
+      elements.tabRanking.innerHTML = renderEmpty("wait", "ランキングを読み込み中です。");
       return;
     }
 
@@ -2047,7 +2048,7 @@ import {
     // 入力欄までの距離が伸びないよう、集計は開閉にする（ふだんは閉じておく。開け閉めは rememberFoldState が覚える）
     return [
       '<details class="ls-fold" data-fold="metrics"' + (appState.ui.metricsOpen ? " open" : "") + ">",
-      '  <summary><span class="ls-fold-icon" aria-hidden="true">📊</span>この記録の集計',
+      '  <summary><span class="ls-fold-icon ls-icon" data-icon="chart" aria-hidden="true"></span>この記録の集計',
       '    <span class="ls-fold-meta">' + escapeHtml(String(previewExercises.length)) + "種目</span>",
       "  </summary>",
       '  <div class="ls-fold-body stats-list">' + previewExercises.map(renderExerciseStatCard).join("") + "</div>",
@@ -2060,11 +2061,11 @@ import {
   // 入力の始め方は3つ：新しく（空から）・メニューから（保存した組み合わせ）・履歴から（前に送った記録）。履歴がまだなければ2つ
   function renderInputStartActions() {
     const buttons = [
-      renderStartButton({ icon: "✏️", label: "新しく", sub: "空から入れる", action: "new-workout" }),
-      renderStartButton({ icon: "📋", label: "メニュー", sub: "保存したもの", action: "open-menu-modal" })
+      renderStartButton({ icon: "edit", label: "新しく", sub: "空から入れる", action: "new-workout" }),
+      renderStartButton({ icon: "list", label: "メニュー", sub: "保存したもの", action: "open-menu-modal" })
     ];
     if (appState.history.length) {
-      buttons.push(renderStartButton({ icon: "🕘", label: "履歴から", sub: "前の記録を使う", action: "open-history-input" }));
+      buttons.push(renderStartButton({ icon: "clock", label: "履歴から", sub: "前の記録を使う", action: "open-history-input" }));
     }
     return '<div class="input-start-row is-' + buttons.length + '" role="group" aria-label="入力の始め方">' + buttons.join("") + "</div>";
   }
@@ -2112,13 +2113,13 @@ import {
     // ログインしていないときは、ここからもログインできる（下の帯の「🔑 ログインして送る」と同じ。入力は残る）
     const canLogin = !status.loggedIn && !!window.liff && typeof window.liff.login === "function";
     const rows = window.QLineMe.describe(
-      Object.assign({}, status, { canLogin: canLogin, bot: false, moveHint: "ページの下の「💾 この端末の記録をバックアップ」でうつせます" })
+      Object.assign({}, status, { canLogin: canLogin, bot: false, moveHint: "ページの下の「この端末の記録をバックアップ」でうつせます" })
     );
     return (
       '<ul class="login-rows">' +
       rows.map((row) => '<li><span aria-hidden="true">' + escapeHtml(row.icon) + "</span><span>" + escapeHtml(row.text) + "</span></li>").join("") +
       "</ul>" +
-      (canLogin ? '<button class="ls-button is-block login-rows-button" data-action="line-login" type="button">🔑 LINE でログイン</button>' : "")
+      (canLogin ? '<button class="ls-button is-block login-rows-button" data-action="line-login" type="button">' + lineIcon("login") + "LINE でログイン</button>" : "")
     );
   }
 
@@ -2136,7 +2137,7 @@ import {
         renderGrass(),
         renderLifted(),
         // 設定はページの下の「⚙️ 設定」に1つ（Q のツールの決まり。q-oqrn の ux.md A7）
-        renderButton({ label: "⚙️ 設定（週のはじまり・色）", action: "open-settings-fold" })
+        renderButton({ label: "設定（週のはじまり・色）", icon: "settings", action: "open-settings-fold" })
       ].join("")
     });
   }
@@ -2289,10 +2290,10 @@ import {
     // 「最長 3週」は1かたまりで折り返す（320px で「最／長」と折れないように）
     const best = ' ・ <span class="ls-nowrap">最長 <b>' + streak.best + "週</b></span>";
     if (streak.thisWeek) {
-      return '<p class="grass-streak">🔥 いま <b>' + streak.current + "週</b> 連続" + best + "</p>";
+      return '<p class="grass-streak">' + lineIcon("flame", true) + "いま <b>" + streak.current + "週</b> 連続" + best + "</p>";
     }
     if (streak.current > 0) {
-      return '<p class="grass-streak">🔥 <b>' + streak.current + '週</b> 連続中<span class="ls-nowrap">（今週やれば ' + (streak.current + 1) + "週）</span>" + best + "</p>";
+      return '<p class="grass-streak">' + lineIcon("flame", true) + "<b>" + streak.current + '週</b> 連続中<span class="ls-nowrap">（今週やれば ' + (streak.current + 1) + "週）</span>" + best + "</p>";
     }
     return '<p class="grass-streak">今週やると、連続がはじまります' + (streak.best ? best : "") + "</p>";
   }
@@ -2369,7 +2370,7 @@ import {
     const undo = undoMenuChange();
     appState.menus = MenuRepository.deleteById(menuId);
     renderInput();
-    notify("🗑 メニュー「" + menu.name + "」を消しました。", "info", undo);
+    notify("メニュー「" + menu.name + "」を消しました。", "info", undo);
   }
 
   // いまのメニューの一覧を覚えておき、「元に戻す」で戻す関数を返す
@@ -2397,7 +2398,7 @@ import {
       "    <small>" + escapeHtml(names) + "</small>",
       "  </button>",
       deletable
-        ? '  <button class="ls-icon-button" data-action="delete-menu" data-menu-id="' + menuId + '" type="button" aria-label="' + escapeHtml("「" + menu.name + "」を消す") + '">🗑</button>'
+        ? '  <button class="ls-icon-button" data-action="delete-menu" data-menu-id="' + menuId + '" type="button" aria-label="' + escapeHtml("「" + menu.name + "」を消す") + '">' + lineIcon("delete") + "</button>"
         : "",
       "</div>"
     ].join("");
@@ -2412,7 +2413,7 @@ import {
     // 並び：今の入力を保存 → マイメニュー（保存したもの）→ おすすめ。押すとそのメニューが入る
     return renderSheet({
       label: "トレーニングメニュー",
-      title: "📋 トレーニングメニュー",
+      title: "トレーニングメニュー",
       closeAction: "close-menu-modal",
       className: "menu-sheet",
       body: [
@@ -2838,7 +2839,7 @@ import {
     renderHistory();
     renderShell();
     // 知らせて、「元に戻す」を押されたら消した履歴をもどす
-    notify("🗑 履歴を消しました。", "info", function () {
+    notify("履歴を消しました。", "info", function () {
       appState.history = LocalStorageWorkoutRepository.replaceAll(saved);
       renderHistory();
       renderShell();

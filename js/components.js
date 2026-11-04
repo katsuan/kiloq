@@ -29,12 +29,17 @@ export function renderDisclosureToggle(options) {
     ' aria-label="' +
     escapeHtml((options.title ? options.title + "を" : "") + (isOpen ? "たたむ" : "ひらく")) +
     '" type="button">' +
-    '<span class="disclosure-chevron" aria-hidden="true">▾</span>' +
+    '<span class="disclosure-chevron ls-icon" data-icon="down" aria-hidden="true"></span>' +
     "</button>"
   );
 }
 
-// Q キットのボタン。options: { label, action, className（"is-danger" など足すクラス）, title（読み上げ・長押しの説明）, disabled, attrs }
+// Q キットの線アイコン（name は Q キットの shared/icons/ の名前）。inText は文の頭に置くとき（字との間をあける）
+export function lineIcon(name, inText = false) {
+  return '<span class="ls-icon' + (inText ? " in-text" : "") + '" data-icon="' + escapeHtml(name) + '" aria-hidden="true"></span>';
+}
+
+// Q キットのボタン。options: { label, action, icon（線アイコンの名前）, className（"is-danger" など足すクラス）, title（読み上げ・長押しの説明）, disabled, attrs }
 export function renderButton(options) {
   const title = options.title ? ' aria-label="' + escapeHtml(options.title) + '" title="' + escapeHtml(options.title) + '"' : "";
   return (
@@ -47,6 +52,7 @@ export function renderButton(options) {
     renderAttributes(options.attrs) +
     (options.disabled ? " disabled" : "") +
     ' type="button">' +
+    (options.icon ? lineIcon(options.icon) : "") +
     escapeHtml(options.label || "") +
     "</button>"
   );
@@ -68,26 +74,26 @@ export function renderChip(options) {
   );
 }
 
-// まだ何もないとき（Q キットの ls-empty。白いカードの中に、絵文字と一言）
+// まだ何もないとき（Q キットの ls-empty。白いカードの中に、線アイコン（icon は名前）と一言）
 export function renderEmpty(icon, text) {
   return (
-    '<div class="ls-panel"><div class="ls-empty"><span class="ls-empty-icon" aria-hidden="true">' +
+    '<div class="ls-panel"><div class="ls-empty"><span class="ls-empty-icon ls-icon" data-icon="' +
     escapeHtml(icon) +
-    "</span>" +
+    '" aria-hidden="true"></span>' +
     escapeHtml(text) +
     "</div></div>"
   );
 }
 
-// 入力の始め方（メニュー・履歴から）のボタン：絵文字＋見出し＋ひとこと
+// 入力の始め方（メニュー・履歴から）のボタン：線アイコン（icon は名前）＋見出し＋ひとこと
 export function renderStartButton(options) {
   return (
     '<button class="input-start-button" data-action="' +
     escapeHtml(options.action) +
     '" type="button">' +
-    '<span class="input-start-icon" aria-hidden="true">' +
+    '<span class="input-start-icon ls-icon" data-icon="' +
     escapeHtml(options.icon) +
-    "</span>" +
+    '" aria-hidden="true"></span>' +
     '<span class="input-start-copy"><span class="input-start-label">' +
     escapeHtml(options.label) +
     '</span><span class="input-start-sub">' +
