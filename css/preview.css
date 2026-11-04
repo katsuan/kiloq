@@ -59,7 +59,7 @@
   padding: 4px 16px 8px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-padding: 0 12px;
+  scroll-padding: 0 16px;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -78,8 +78,8 @@
 
 .preview-bubble-button {
   display: block;
-  margin: 0 0 8px;
-  padding: 8px 8px;
+  margin: 0 0 6px;
+  padding: 7px 8px;
   border-radius: 6px;
   background: #fff;
   color: var(--ls-accent-strong, var(--ls-accent));
@@ -99,7 +99,7 @@
   --ls-subtext: #6b6a63;
   --kq-secondary: #264653;
   color: var(--ls-text);
-  padding: 16px;
+  padding: 12px;
   border: 1px solid var(--ls-accent);
   border-radius: var(--ls-radius-lg);
   background: #fff;
@@ -109,8 +109,8 @@
 .preview-bubble-header {
   display: grid;
   gap: 8px;
-  margin: -16px -16px 8px;
-  padding: 8px 16px;
+  margin: -12px -12px 10px;
+  padding: 10px 12px;
   border-radius: 16px 16px 10px 10px;
   background: var(--ls-accent);
   color: #fff;
@@ -132,7 +132,7 @@
 .preview-bubble-title {
   display: block;
   width: 100%;
-  margin-top: 4px;
+  margin-top: 2px;
   font-size: 0.98rem;
   font-weight: 700;
 }
@@ -165,13 +165,13 @@
 .preview-sets {
   display: grid;
   gap: 4px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .preview-set-line {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   min-height: 1.4em;
   color: var(--kq-secondary);
   font-size: 0.82rem;
@@ -193,7 +193,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 4px;
+  padding: 0 5px;
   border-radius: 2px;
   background: #e92b2b;
   color: #fff;
@@ -211,7 +211,7 @@
 
 .preview-bubble-footer {
   margin-top: 8px;
-  padding: 8px 8px;
+  padding: 6px 8px;
   border-radius: 8px;
   background: var(--ls-accent);
   color: #fff;
