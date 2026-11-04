@@ -43,31 +43,44 @@
   box-shadow: var(--ls-shadow);
 }
 
-/* 狭い画面では、題を1行ぶん使い、「この内容で入力」と開閉はその下の右に（題が「上半身ワーク／アウト」と折れないように） */
+/* 頭は2行：［日付・種目の数］…［この内容で入力］／［タイトル］…［開閉］。行ごとに、左は字（残りの幅）、右はボタン */
 .history-card-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px 16px;
+  display: grid;
+  gap: 8px;
   padding: 16px 16px;
 }
 
-.history-card-copy {
-  flex: 1 1 12em;
+.history-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.history-card-row > :first-child {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
-.history-card-head > .history-actions {
-  margin-left: auto;
+.history-card-row > .ls-button,
+.history-card-row > .disclosure-toggle {
+  flex: 0 0 auto;
 }
 
-.history-card-copy h4 {
-  margin: 0 0 4px;
+.history-card-head .history-action-button {
+  min-height: 36px;
+  padding: 0 16px;
+  font-size: 0.85rem;
+}
+
+.history-title {
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .history-meta {
-  margin: 0 0 4px;
+  margin: 0;
+  white-space: nowrap;
   color: var(--ls-subtext);
   font-size: 0.9rem;
   line-height: 1.5;

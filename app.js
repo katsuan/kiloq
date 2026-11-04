@@ -2207,7 +2207,7 @@ import {
       renderChip({ label: "月曜", action: "set-week-start", pressed: now === 1, attrs: { "data-week-start": "1" } }),
       renderChip({ label: "日曜", action: "set-week-start", pressed: now === 0, attrs: { "data-week-start": "0" } }),
       "  </div>",
-      '  <p class="ls-hint">ほかの Q のツールにもそろいます。</p>',
+      '  <p class="ls-hint">ここで変えると、つづく・くるかななど、ほかのツールの週のはじまりも同じになります。</p>',
       "</div>"
     ].join("");
   }
@@ -2504,17 +2504,19 @@ import {
     const idAttrs = { "data-workout-id": workout.workoutId };
     return [
       '<article class="history-card">',
+      // 頭は2行：［日付・種目の数］…［この内容で入力］／［タイトル］…［開閉］
       '  <div class="history-card-head" data-disclosure-host>',
-      '    <div class="history-card-copy">',
+      '    <div class="history-card-row">',
+      // 日付は「11/3」（年と月は月ごとの欄の見出しにある）。1行に収める
       '      <p class="history-meta">' +
-        escapeHtml(workout.date || "-") +
+        escapeHtml(formatShortDate(workout.date) || workout.date || "-") +
         " ・ " +
         escapeHtml(String((workout.exercises || []).length)) +
         "種目</p>",
-      "      <h4>" + escapeHtml(resolveWorkoutTitle(workout.title, workout.user)) + "</h4>",
-      "    </div>",
-      '    <div class="history-actions">',
       renderButton({ label: "この内容で入力", className: "history-action-button", action: "restore-history", attrs: idAttrs }),
+      "    </div>",
+      '    <div class="history-card-row">',
+      '      <h4 class="history-title">' + escapeHtml(resolveWorkoutTitle(workout.title, workout.user)) + "</h4>",
       renderDisclosureToggle({ isOpen: isOpen, action: "toggle-history-card", title: "履歴", attrs: idAttrs }),
       "    </div>",
       "  </div>",
