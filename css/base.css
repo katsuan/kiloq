@@ -10,7 +10,7 @@
   --ls-accent-strong: #aa4b0e;
   --ls-accent-soft: #f2dbcd;
   --ls-accent-ink: #8c2d00;
-  --ls-tabs-bg: #f1ddce;
+  --ls-tabs-bg: #ece8e2;
   --ls-bg: #f7f4ef;
   --ls-surface-sub: #fbf8f3;
   --ls-text: #1f2a1f;
@@ -21,12 +21,7 @@
   --ls-shadow: 0 18px 40px rgba(31, 42, 31, 0.08);
   --ls-font: "Avenir Next", "Hiragino Sans", "Yu Gothic", sans-serif;
 
-  /* キロっくにしかない部品の色（種目カード・セット・プレビュー）。選んだ色に合わせて js/theme.js が変える */
-  --kq-tint: #faeadd;
-  --kq-outline: #deb89d;
-  --kq-surface: #fbeee3;
-  --kq-surface-strong: #f9f5f0;
-  --kq-bg-accent: #efdcc8;
+  /* 送るカードの見本の字の色（LINE に送るカードと同じ） */
   --kq-secondary: #264653;
 }
 
@@ -59,10 +54,10 @@ body {
 
 .ls-brand-copy {
   margin: -4px 4px 8px;
-  color: var(--ls-accent);
+  color: var(--ls-subtext);
   font-size: 13px;
+  font-weight: 600;
   line-height: 1.4;
-  letter-spacing: 0.02em;
 }
 
 /* ---- タブ（入力・履歴）。押すとそこまで動くだけなので、上に貼りつけない ---- */
@@ -181,10 +176,7 @@ body:not(.ls-has-sendbar) .ls-toast {
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 8px;
-  border-radius: 6px;
-  background: var(--ls-accent-soft);
-  color: var(--ls-accent-ink);
+  color: var(--ls-subtext);
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -222,8 +214,8 @@ body:not(.ls-has-sendbar) .ls-toast {
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: var(--ls-accent-soft);
-  color: var(--ls-accent-ink);
+  background: transparent;
+  color: var(--ls-subtext);
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1;
@@ -263,17 +255,28 @@ body:not(.ls-has-sendbar) .ls-toast {
   opacity: 0.35;
 }
 
+/* ---- Q キットの部品の上書き（Q キットがそろえたら消す） ----
+ * 何もないときの知らせは、ほかの文と同じく左にそろえる。選んでいるチップは、色の面ではなく濃いふちと字で
+ */
+.ls-empty {
+  justify-items: start;
+  text-align: left;
+}
+
+.ls-chip[aria-pressed="true"]:not(.color),
+.ls-chip[aria-checked="true"]:not(.color),
+.ls-chip.is-active:not(.color),
+.ls-chip:has(input:checked):not(.color) {
+  border-color: var(--ls-text);
+  background: var(--ls-surface);
+  color: var(--ls-text);
+}
+
 /* ---- 暗い表示（index.html の data-ls-dark="auto"。Q キットの色は ui.css が暗くする） ----
- * 選んだ色から作る --kq-*（js/theme.js が :root に直接入れる）も、暗い背景に合うよう上書きする。
  * 送る前のプレビュー（LINE のトークの見た目）は明るいまま。
  */
 @media (prefers-color-scheme: dark) {
   :root[data-ls-dark="auto"] {
-    --kq-tint: color-mix(in srgb, var(--ls-accent) 14%, #1c1b21) !important;
-    --kq-outline: color-mix(in srgb, var(--ls-accent) 40%, #3a3942) !important;
-    --kq-surface: color-mix(in srgb, var(--ls-accent) 12%, #1c1b21) !important;
-    --kq-surface-strong: color-mix(in srgb, var(--ls-accent) 6%, #1c1b21) !important;
-    --kq-bg-accent: color-mix(in srgb, var(--ls-accent) 28%, #121116) !important;
     --kq-secondary: #9cc3d0;
   }
 

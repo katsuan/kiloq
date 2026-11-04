@@ -1,4 +1,4 @@
-// キロっく：表示設定の色。選んだ色から画面の色（Q キットの --ls-accent・キロっくの --kq-*）と、送るカードの色を作り、端末に覚える。
+// キロっく：表示設定の色。選んだ色から画面の色（Q キットの --ls-accent など）と、送るカードの色を作り、端末に覚える。
 // app.js から読む（import）
 import {
   DEFAULT_THEME,
@@ -29,7 +29,7 @@ export function saveThemePreference(theme) {
   localStorage.setItem(STORAGE_KEYS.theme, JSON.stringify(theme));
 }
 
-// 選んだ色を、Q キットの色（--ls-accent など。チップ・ボタン・タブ）と、キロっくにしかない部品の色（--kq-*）に入れる。
+// 選んだ色を、Q キットの色（--ls-accent など。チップ・ボタン・タブ）に入れる。
 // 初期色のときの値は css/base.css の :root にも書いてある（開いた瞬間から色が付くように）
 export function applyTheme(baseColor) {
   const normalizedColor = normalizeHexColor(baseColor) || DEFAULT_THEME.baseColor;
@@ -40,19 +40,13 @@ export function applyTheme(baseColor) {
   });
 }
 
-// 選んだ色から、Q キットの色（--ls-accent など）とキロっくの色（--kq-*）を作って返す
+// 選んだ色から、Q キットの色（--ls-accent など）を作って返す。面と線は色をつけない（色は送るボタンなど大事な所だけ）
 function buildThemePalette(baseColor) {
   return {
     "--ls-accent": baseColor,
     "--ls-accent-strong": adjustColorLightness(baseColor, -0.12),
     "--ls-accent-soft": mixColors(baseColor, "#FFFFFF", 0.76),
-    "--ls-accent-ink": adjustColorLightness(baseColor, -0.24),
-    "--ls-tabs-bg": mixColors(baseColor, "#F7F0E8", 0.86),
-    "--kq-tint": mixColors(baseColor, "#FFF8F1", 0.9),
-    "--kq-outline": mixColors(baseColor, "#E6D6C8", 0.72),
-    "--kq-surface": mixColors(baseColor, "#FFF9F3", 0.92),
-    "--kq-surface-strong": mixColors(baseColor, "#FCFEFC", 0.94),
-    "--kq-bg-accent": mixColors(baseColor, "#F4EBDD", 0.88)
+    "--ls-accent-ink": adjustColorLightness(baseColor, -0.24)
   };
 }
 

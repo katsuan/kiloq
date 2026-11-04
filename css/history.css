@@ -37,9 +37,9 @@
 
 .history-card {
   overflow: hidden;
-  border: 1px solid var(--kq-outline);
+  border: 1px solid var(--ls-line);
   border-radius: var(--ls-radius-lg);
-  background: var(--kq-surface);
+  background: var(--ls-surface);
   box-shadow: var(--ls-shadow);
 }
 
@@ -334,9 +334,9 @@
 
 .ranking-card {
   padding: 16px;
-  border: 1px solid var(--kq-outline);
+  border: 1px solid var(--ls-line);
   border-radius: var(--ls-radius-lg);
-  background: var(--kq-surface);
+  background: var(--ls-surface);
 }
 
 .ranking-card h4 {
