@@ -256,11 +256,20 @@ body:not(.ls-has-sendbar) .ls-toast {
 }
 
 /* ---- Q キットの部品の上書き（Q キットがそろえたら消す） ----
- * 何もないときの知らせは、ほかの文と同じく左にそろえる
+ * 何もないときの知らせは、ほかの文と同じく左にそろえる。選んでいるチップは、色の面ではなく濃いふちと字で
  */
 .ls-empty {
   justify-items: start;
   text-align: left;
+}
+
+.ls-chip[aria-pressed="true"]:not(.color),
+.ls-chip[aria-checked="true"]:not(.color),
+.ls-chip.is-active:not(.color),
+.ls-chip:has(input:checked):not(.color) {
+  border-color: var(--ls-text);
+  background: var(--ls-surface);
+  color: var(--ls-text);
 }
 
 /* ---- 暗い表示（index.html の data-ls-dark="auto"。Q キットの色は ui.css が暗くする） ----
