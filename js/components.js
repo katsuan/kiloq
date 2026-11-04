@@ -34,9 +34,10 @@ export function renderDisclosureToggle(options) {
   );
 }
 
-// Q キットの線アイコン（name は Q キットの shared/icons/ の名前）。inText は文の頭に置くとき（字との間をあける）
+// Q キットの線アイコンの HTML（Q キットの LineShareUI.iconHtml。name は shared/icons/ の名前）。inText は文の頭に置くとき（字との間。is-text）。
+// app.js（type="module"）は Q キットの ui.js（defer）のあとに動く。Q キットが読めないときは何も出さない
 export function lineIcon(name, inText = false) {
-  return '<span class="ls-icon' + (inText ? " in-text" : "") + '" data-icon="' + escapeHtml(name) + '" aria-hidden="true"></span>';
+  return globalThis.LineShareUI ? globalThis.LineShareUI.iconHtml(name, inText ? "is-text" : "") : "";
 }
 
 // Q キットのボタン。options: { label, action, icon（線アイコンの名前）, className（"is-danger" など足すクラス）, title（読み上げ・長押しの説明）, disabled, attrs }

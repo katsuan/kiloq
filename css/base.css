@@ -247,18 +247,6 @@ body:not(.ls-has-sendbar) .ls-toast {
   opacity: 0.35;
 }
 
-/* ---- Q キットの部品の上書き（Q キットがそろえたら消す） ----
- * 選んでいるチップは、色の面ではなく濃いふちと字で（Q キットはまだツールの色。ユーザーが選んだ形。Q キットがそろえたら消す）
- */
-.ls-chip[aria-pressed="true"]:not(.color),
-.ls-chip[aria-checked="true"]:not(.color),
-.ls-chip.is-active:not(.color),
-.ls-chip:has(input:checked):not(.color) {
-  border-color: var(--ls-text);
-  background: var(--ls-surface);
-  color: var(--ls-text);
-}
-
 /* ---- 暗い表示（index.html の data-ls-dark="auto"。Q キットの色は ui.css が暗くする） ----
  * 送る前のプレビュー（LINE のトークの見た目）は明るいまま。
  */
@@ -270,11 +258,6 @@ body:not(.ls-has-sendbar) .ls-toast {
   :root[data-ls-dark="auto"] .memo-toggle-button {
     background: rgba(255, 255, 255, 0.06);
   }
-}
-
-/* 文の頭の線アイコン：字との間（Q キットの ls-button の中は gap があるので付けない） */
-.in-text {
-  margin-right: 4px;
 }
 
 /* 始め方のボタン・開閉の印の線アイコンの大きさ */
