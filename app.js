@@ -2498,13 +2498,13 @@ import {
     });
   }
 
-  // 履歴の記録1つ（開くと種目ごとの集計・この内容で入力・消す）の HTML を返す
+  // 履歴の記録1つ（開くと種目ごとの集計・使う（この記録を入力に）・消す）の HTML を返す
   function renderHistoryCard(workout) {
     const isOpen = Boolean(appState.ui.openHistoryIds[workout.workoutId]);
     const idAttrs = { "data-workout-id": workout.workoutId };
     return [
       '<article class="history-card">',
-      // 頭は2行：［日付・種目の数］…［この内容で入力］／［タイトル］…［開閉］
+      // 頭は2行：［日付・種目の数］…［使う］／［タイトル］…［開閉］
       '  <div class="history-card-head" data-disclosure-host>',
       '    <div class="history-card-row">',
       // 日付は「11/3」（年と月は月ごとの欄の見出しにある）。1行に収める
@@ -2513,7 +2513,7 @@ import {
         " ・ " +
         escapeHtml(String((workout.exercises || []).length)) +
         "種目</p>",
-      renderButton({ label: "この内容で入力", className: "history-action-button", action: "restore-history", attrs: idAttrs }),
+      renderButton({ label: "使う", icon: "edit", title: "この記録を入力に使う", className: "history-action-button", action: "restore-history", attrs: idAttrs }),
       "    </div>",
       '    <div class="history-card-row">',
       '      <h4 class="history-title">' + escapeHtml(resolveWorkoutTitle(workout.title, workout.user)) + "</h4>",
