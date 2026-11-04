@@ -837,13 +837,15 @@ import {
       appState.ui.expandedExerciseId = getDefaultExpandedExerciseId(workout.exercises);
     }
     // 並びは「記録の前提 → 主な作業 → 補助的な操作」
-    //   1. アイコン（Q キットの line-me.js が読めないときだけ）  2. 始め方（メニュー・履歴から入れる）
+    //   1. 見出し（アイコン＋「記録入力」だけ）  2. 始め方（メニュー・履歴から入れる）
     //   3. ワークアウトタイトル（日付は入力した日を自動で使う）  4. 種目とセット  5. サンプル・リセット
     const html = [
       '<div class="input-stack">',
-      // アイコンは見出し（ロゴの右）に出す（Q キットの shared/line-me.js）。読めなかったときだけ、ここに前のボタン。
-      // 「記録入力」の見出しは置かない（タブが「入力」と言っている）
-      lineMe ? "" : '  <div class="input-page-head">' + renderSettingsTrigger() + "</div>",
+      '  <div class="input-page-head">',
+      // アイコンは見出し（ロゴの右）に出す（Q キットの shared/line-me.js）。読めなかったときだけ、ここに前のボタン
+      lineMe ? "" : renderSettingsTrigger(),
+      '    <h2 class="panel-title">記録入力</h2>',
+      "  </div>",
       renderInputStartActions(),
       renderSettingsSheet(),
       renderMenuSheet(),

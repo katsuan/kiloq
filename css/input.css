@@ -73,9 +73,9 @@
   min-width: 0;
   min-height: 52px;
   padding: 8px 16px;
-  border: 1px solid var(--ls-line);
+  border: 1px solid var(--kq-outline);
   border-radius: 16px;
-  background: var(--ls-surface);
+  background: var(--kq-surface);
   color: var(--ls-text);
   text-align: left;
   cursor: pointer;
@@ -117,7 +117,7 @@
 }
 
 .input-start-label {
-  color: var(--ls-text);
+  color: var(--ls-accent-ink);
   font-size: 0.92rem;
   font-weight: 700;
 }
@@ -138,9 +138,9 @@
   gap: 8px;
   width: 100%;
   padding: 8px 8px;
-  border: 1px solid var(--ls-line);
+  border: 1px solid var(--kq-outline);
   border-radius: 14px;
-  background: var(--ls-surface);
+  background: var(--kq-surface);
   box-shadow: 0 8px 18px rgba(31, 42, 31, 0.06);
   color: inherit;
   text-align: left;
@@ -176,7 +176,7 @@
   /* 「入力中」から移ったとき、カードの頭が「入力中」の帯に隠れないように */
   scroll-margin-top: 80px;
   padding: 8px 16px;
-  border: 1px solid var(--ls-line);
+  border: 1px solid var(--kq-outline);
   border-radius: var(--ls-radius-lg);
   background: var(--ls-surface);
   box-shadow: var(--ls-shadow);
@@ -227,8 +227,9 @@
   display: grid;
   gap: 8px;
   padding: 8px;
+  border: 1px dashed var(--kq-outline);
   border-radius: 16px;
-  background: var(--ls-surface-sub);
+  background: var(--kq-tint);
 }
 
 .exercise-picker .ls-chip {
@@ -250,9 +251,9 @@
 
 .set-row {
   padding: 8px;
-  border: 1px solid var(--ls-line);
+  border: 1px solid var(--kq-outline);
   border-radius: 16px;
-  background: var(--ls-surface-sub);
+  background: var(--kq-surface-strong);
 }
 
 .set-row-head {
@@ -267,7 +268,10 @@
   align-items: center;
   justify-content: center;
   min-height: 28px;
-  color: var(--ls-text);
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--ls-accent-soft);
+  color: var(--ls-accent-ink);
   font-size: 0.82rem;
   font-weight: 700;
 }
@@ -317,7 +321,7 @@
   grid-template-columns: 36px minmax(0, 1fr) 36px;
   align-items: stretch;
   overflow: hidden;
-  border: 1px solid var(--ls-line);
+  border: 1px solid var(--kq-outline);
   border-radius: 14px;
   background: var(--ls-surface);
 }
@@ -398,8 +402,8 @@
 }
 
 .add-set-button {
-  background: var(--ls-surface-sub);
-  color: var(--ls-text);
+  background: var(--kq-surface);
+  color: var(--ls-accent-ink);
 }
 
 .memo-toggle-button {
