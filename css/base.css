@@ -159,11 +159,6 @@ body:not(.ls-has-sendbar) .ls-toast {
 }
 
 /* ---- 小さな共通の見た目 ---- */
-.panel-title {
-  margin: 0;
-  font-weight: 650;
-}
-
 .section-label {
   margin: 0 0 8px;
   color: var(--ls-accent-ink);
@@ -199,7 +194,7 @@ body:not(.ls-has-sendbar) .ls-toast {
   color: var(--ls-danger);
 }
 
-/* 開閉の目印（送信プレビュー・種目・履歴）。見出しの行全体で開閉できるので、▾ は枠のない控えめな印にする */
+/* 開閉の目印（送信プレビュー・種目・履歴）。見出しの行全体で開閉できるので、印（線アイコンの down。16px）は枠のない控えめなボタンにする */
 [data-disclosure-host] {
   cursor: pointer;
 }
@@ -216,9 +211,6 @@ body:not(.ls-has-sendbar) .ls-toast {
   border-radius: 999px;
   background: transparent;
   color: var(--ls-subtext);
-  font-size: 0.82rem;
-  font-weight: 700;
-  line-height: 1;
   cursor: pointer;
   position: relative;
 }
@@ -230,9 +222,9 @@ body:not(.ls-has-sendbar) .ls-toast {
   inset: -4px;
 }
 
-.disclosure-chevron {
-  color: inherit;
-  font-size: 1rem;
+.disclosure-chevron.ls-icon {
+  width: 16px;
+  height: 16px;
   transition: transform 0.15s ease;
 }
 
@@ -291,7 +283,3 @@ body:not(.ls-has-sendbar) .ls-toast {
   height: 24px;
 }
 
-.disclosure-chevron.ls-icon {
-  width: 16px;
-  height: 16px;
-}

@@ -13,7 +13,7 @@ function renderAttributes(attrs) {
     .join("");
 }
 
-// 開閉できるところ（送信プレビュー・種目・履歴のカード）は、この ▾ ボタンでそろえる（文字は読み上げ用）
+// 開閉できるところ（送信プレビュー・種目・履歴のカード）は、この開閉のボタン（線アイコンの down）でそろえる（文字は読み上げ用）
 export function renderDisclosureToggle(options) {
   const isOpen = Boolean(options.isOpen);
   return (

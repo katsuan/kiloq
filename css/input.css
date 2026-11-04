@@ -13,11 +13,6 @@
   padding: 4px 4px 0;
 }
 
-.input-page-head .panel-title {
-  flex: 1;
-  min-width: 0;
-}
-
 /* アイコンを押すと、草グラフと表示設定のシートが開く */
 .user-avatar-button {
   display: inline-flex;
