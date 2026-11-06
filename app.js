@@ -879,7 +879,7 @@ import {
     const isOpen = appState.ui.previewOpen;
     const html = [
       '<div class="preview-stack">',
-      // おくるカード(line-share)と同じ、LINE のトーク画面に近い枠
+      // おくるカード(oqrn)と同じ、LINE のトーク画面に近い枠
       '  <section class="talk-preview' + (isOpen ? "" : " is-closed") + '" aria-label="送信プレビュー">',
       '    <div class="talk-preview-head" data-disclosure-host>',
       '      <span class="talk-preview-label">送信プレビュー</span>',

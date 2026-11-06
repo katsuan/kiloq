@@ -4,7 +4,7 @@
 
 アイコン（`icon.svg`・`apple-touch-icon.png`・`icon-512.png`・`icon-maskable-512.png`・`icon-32.png`）と横長のロゴ（`logo.svg`）は `python3 tools/icon.py` で作る：おくるんと同じ角の丸い四角に、キロっくのオレンジ（`DEFAULT_THEME.baseColor` の #C96A2D）。白いウエイトのプレート（太い輪＋面の溝＋まん中の穴）の右下のふちに、小さなダンベルを斜めに重ね、プレート（輪）＋ダンベル（しっぽ）で Q に見せる（kiloQ の Q）。後ろにうっすらノートの罫線（記録）。ロゴは k・i・l・o をフォント（Jua）で並べ、Q だけアイコンと同じプレート＋ダンベル。共有したときの画像（`ogp.png`、1200×630）は `python3 tools/ogp.py` で作る。ホーム画面に追加したとき用に `manifest.webmanifest`。
 
-おくるんのトップの「ほかのツール」（line-share の `data/hub-links.json`）には、このアイコン（`appIcon`）付きで「キロっく」として載せている。
+おくるんのトップの「ほかのツール」（oqrn の `data/hub-links.json`）には、このアイコン（`appIcon`）付きで「キロっく」として載せている。
 
 公開URL: https://katsuan.github.io/line-workout-share/
 
@@ -20,7 +20,7 @@ GitHub Pages で配信する、静的なワークアウト共有アプリです�
 - 現在は責務ごとに `js/` 配下へ分割しています。
   - `index.html`
   - `style.css`
-    - CSS のエントリーポイント。`css/` 配下の partial を読み込みます。部品（見出しの行・タブ・カード・チップ・入力欄・ボタン・開閉・シート・送る帯・トースト）はおくるんの Q キット（`https://katsuan.github.io/line-share/shared/ui.css`・`ui.js`。使い方はおくるんの README の「Q キット」）を `index.html` で先に読み、`style.css` には、キロっくの色と字と、キロっくにしかない見た目だけを置く
+    - CSS のエントリーポイント。`css/` 配下の partial を読み込みます。部品（見出しの行・タブ・カード・チップ・入力欄・ボタン・開閉・シート・送る帯・トースト）はおくるんの Q キット（`https://katsuan.github.io/oqrn/shared/ui.css`・`ui.js`。使い方はおくるんの README の「Q キット」）を `index.html` で先に読み、`style.css` には、キロっくの色と字と、キロっくにしかない見た目だけを置く
   - `app.js`
     - 入口。UI 描画とイベント制御。押したときの処理は `CLICK_ACTIONS`（`data-action` の名前 → 処理）に並べる。入力の入れ替え（履歴・メニュー・サンプル・リセット）は `replaceWorkout` にまとめる。知らせは `notify`（Q キットのトースト）。消す・入れ替えるときは確かめのダイアログを出さず、すぐ変えてトーストの「元に戻す」で戻せるようにする（`undoInputChange`・`undoMenuChange`）
   - `css/base.css`
@@ -258,4 +258,4 @@ GitHub Pages で配信する、静的なワークアウト共有アプリです�
 
 ## 紹介の窓口
 
-「キロっくを紹介する」（入力・履歴の下）は、おくるんの `shared/tool-share.js`（`data-tool="kiloq"`）。押すとおくるんでオレンジの紹介カードを作って LINE に送れる（リンクのシェアも選べる）。中身は line-share の `data/hub-links.json` の `key: "kiloq"`。
+「キロっくを紹介する」（入力・履歴の下）は、おくるんの `shared/tool-share.js`（`data-tool="kiloq"`）。押すとおくるんでオレンジの紹介カードを作って LINE に送れる（リンクのシェアも選べる）。中身は oqrn の `data/hub-links.json` の `key: "kiloq"`。
