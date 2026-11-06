@@ -6,7 +6,7 @@
 
 おくるんのトップの「ほかのツール」（oqrn の `data/hub-links.json`）には、このアイコン（`appIcon`）付きで「キロっく」として載せている。
 
-公開URL: https://katsuan.github.io/line-workout-share/
+公開URL: https://katsuan.github.io/kiloq/
 
 GitHub Pages で配信する、静的なワークアウト共有アプリです。  
 入力したトレーニング内容を LIFF 上でまとめ、LINE の `shareTargetPicker` を使って共有する前提で作っています。
