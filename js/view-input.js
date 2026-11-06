@@ -124,12 +124,19 @@ export function stepSetValue(button) {
   input.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
-// 入力の画面のいちばん下の小さな操作（サンプル・リセット）の HTML を返す
-export function renderInputUtilityActions() {
+// メニューのシートの「おすすめ」のいちばん下の行：見本（重さ・メモ入りの記録）を入れる。押すと入る（「元に戻す」で戻せる）
+export function renderSampleMenuRow(sample) {
+  const names = (sample.exercises || [])
+    .map(function (exercise) {
+      return exercise.name;
+    })
+    .join("・");
   return [
-    // 補助的な操作は一番下に小さく（「履歴から始める」は見出しの横へ移した）
-    '<div class="input-utility-row">',
-    '  <button class="text-link-button" data-action="sample-workout" type="button">サンプルを入れる</button>',
+    '<div class="ls-list-row">',
+    '  <button class="ls-list-item" data-action="sample-workout" type="button" title="見本を入れる">',
+    '    <span class="menu-name">見本：' + escapeHtml(sample.title) + '<span class="menu-meta">重さ・メモ入り</span></span>',
+    "    <small>" + escapeHtml(names) + "</small>",
+    "  </button>",
     "</div>"
   ].join("");
 }

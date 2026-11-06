@@ -111,7 +111,7 @@ import {
   getUserInitial,
   renderExercisePicker,
   renderExerciseSummary,
-  renderInputUtilityActions,
+  renderSampleMenuRow,
   renderMenuRow,
   renderSetRow,
   stepSetValue
@@ -837,7 +837,6 @@ import {
       "  </section>",
       renderCurrentExerciseIndicator(workout.exercises),
       renderExerciseStack(workout.exercises),
-      renderInputUtilityActions(),
       "</div>"
     ].join("");
 
@@ -2230,6 +2229,7 @@ import {
           MENU_PRESETS.map(function (preset) {
             return renderMenuRow(expandMenuPreset(preset), false);
           }).join("") +
+          renderSampleMenuRow(buildSampleWorkout({ user: DEFAULT_USER, groupKey: "" })) +
           "</div>",
         "</div>"
       ].join("")
@@ -2351,6 +2351,7 @@ import {
 
   // 見本の記録を入力に入れる（「元に戻す」で戻せる）
   function applySampleWorkout() {
+    appState.ui.menuModalOpen = false;
     replaceWorkout(
       hydrateWorkout(
         buildSampleWorkout({
@@ -2358,7 +2359,7 @@ import {
           groupKey: resolveGroupKey()
         })
       ),
-      "サンプル入力を反映しました。"
+      "見本を入れました。重さ・回数を直して記録できます。"
     );
   }
 
