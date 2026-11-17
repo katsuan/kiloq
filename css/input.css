@@ -297,7 +297,7 @@
 .set-head-meta.is-max-rm .metric-value::after {
   content: " MAX";
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .set-row-inputs {
@@ -411,7 +411,7 @@ textarea.memo-input {
   margin: 4px 0 8px;
   border-style: dashed;
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 /* 補助の操作は一番下に小さく */
