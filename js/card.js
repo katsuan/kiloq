@@ -14,12 +14,12 @@ import {
   getTodayLocalDate
 } from "./page.js?v=202611021614";
 import {
-  APP_CONFIG,
   FLEX_THEME,
   MAX_EXERCISES_PER_BUBBLE,
   MAX_FLEX_UNITS_PER_BUBBLE,
   MAX_SETS_PER_FLEX_EXERCISE
 } from "./settings.js?v=202611021614";
+import { NAMES } from "./names.js?v=202611021614";
 import {
   hasEstimated1rm,
   isMaxRmSet,
@@ -69,7 +69,7 @@ export function buildWorkoutFlexMessage(workout, theme, resolveGroupKey, history
 
 // 送るカードの末尾の文字（プレビューも同じ文字を使う）
 export function getCreditText() {
-  return "Created by " + (APP_CONFIG.APP_NAME || "kiloQ") + " ›";
+  return "Created by " + NAMES.en + " ›";
 }
 
 // 1枚のカード（見出し・種目・下の帯）を作る。最後のカードには「🏋️ 同じメニューでやる」を付ける

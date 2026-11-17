@@ -3,7 +3,6 @@
 window.LINE_SHARE_CONFIG = Object.assign({}, window.LINE_SHARE_CONFIG, { liffId: "2012187502-SXNrASOl" });
 window.APP_CONFIG = {
   LIFF_ID: "2012187502-SXNrASOl",
-  APP_NAME: "kiloQ",
   DEFAULT_GROUP_KEY: "default-group",
   FEATURE_FLAGS: {
     enableDebugMode: false,

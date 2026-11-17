@@ -16,6 +16,7 @@ import {
   APP_CONFIG,
   DEFAULT_USER
 } from "./settings.js?v=202611021614";
+import { NAMES } from "./names.js?v=202611021614";
 
 // 文字の長さの上限（入力欄の maxlength・送るカード・リンクの draft で同じ）
 export const TEXT_LIMITS = { title: 40, name: 60, memo: 200, catalogId: 40, muscle: 20, displayName: 20, altText: 400 };
@@ -191,9 +192,9 @@ export function sanitizeWorkout(workout, resolveGroupKey) {
 export function getDefaultWorkoutTitle(user) {
   const displayName = user ? String(user.displayName || "").trim() : "";
   if (displayName && displayName.toLowerCase() !== "anonymous") {
-    return displayName + "のキロっく";
+    return displayName + "の" + NAMES.app;
   }
-  return "キロっく";
+  return NAMES.app;
 }
 
 // タイトル（空なら初めのタイトル）を返す

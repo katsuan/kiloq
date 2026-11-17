@@ -62,6 +62,7 @@ import {
   MAX_MENUS,
   STORAGE_KEYS
 } from "./js/settings.js?v=202611021614";
+import { NAMES } from "./js/names.js?v=202611021614";
 import {
   createApiWorkoutRepository,
   createLocalStorageMenuRepository,
@@ -192,7 +193,7 @@ import {
   async function initApp() {
     cacheElements();
     bindEvents();
-    document.title = document.title || APP_CONFIG.APP_NAME || "kiloQ";
+    document.title = document.title || NAMES.en;
 
     appState.theme = loadThemePreference();
     applyTheme(appState.theme.baseColor);
@@ -2024,7 +2025,7 @@ import {
       renderChip({ label: "月曜", action: "set-week-start", pressed: now === 1, attrs: { "data-week-start": "1" } }),
       renderChip({ label: "日曜", action: "set-week-start", pressed: now === 0, attrs: { "data-week-start": "0" } }),
       "  </div>",
-      '  <p class="ls-hint">ここで変えると、つづく・くるかななど、ほかのツールの週のはじまりも同じになります。</p>',
+      `  <p class="ls-hint">ここで変えると、${NAMES.tuzuq}・${NAMES.qurukana}など、ほかのツールの週のはじまりも同じになります。</p>`,
       "</div>"
     ].join("");
   }
