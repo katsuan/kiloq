@@ -386,12 +386,12 @@ function buildWorkoutAltText(workout) {
       return title;
     }
 
-    const senderPrefix = displayName + "'s ";
-    if (title.toLowerCase().startsWith(senderPrefix.toLowerCase())) {
+    // タイトルが名前で始まる（「NAMEのキロっく」「NAME's …」）なら、名前をもう一度つけない
+    if (title.toLowerCase().startsWith(displayName.toLowerCase())) {
       return title;
     }
 
-    return senderPrefix + title;
+    return displayName + "'s " + title;
   }
 
   return (workout.date || getTodayLocalDate()) + " " + title;
