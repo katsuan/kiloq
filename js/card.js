@@ -36,22 +36,13 @@ export function buildWorkoutFlexMessage(workout, theme, resolveGroupKey, history
   const exerciseChunks = splitExercisesForFlexBubbles(calculatedWorkout.exercises);
   const activeTheme = theme || FLEX_THEME;
 
-  // LINE のカルーセルは 12 枚まで。入らない種目は、最後のカードに「ほか N 種目」と出す
-  const shownChunks = exerciseChunks.slice(0, MAX_FLEX_BUBBLES);
-  const hiddenCount = exerciseChunks.slice(MAX_FLEX_BUBBLES).reduce(function (sum, chunk) {
-    return sum + chunk.length;
-  }, 0);
-  const bubbles = shownChunks.map(function (chunk, index) {
-    return buildWorkoutBubble(calculatedWorkout, chunk, index, shownChunks.length, activeTheme);
-  });
-  if (hiddenCount > 0) {
-    bubbles[bubbles.length - 1].body.contents.push({
-      type: "text",
-      text: "ほか " + hiddenCount + " 種目",
-      size: "xs",
-      color: "#5D6C5D",
-      margin: "sm"
-    });
+  // LINE のカルーセルは 12 枚・50 KB まで。入らない種目は、最後のカードに「ほか N 種目」と出す。
+  // 大きさは JSON の UTF-8 のバイト数で見て、こえるときは後ろのカードから減らす
+  let shownCount = Math.min(exerciseChunks.length, MAX_FLEX_BUBBLES);
+  let bubbles = buildWorkoutBubbles(calculatedWorkout, exerciseChunks, shownCount, activeTheme);
+  while (shownCount > 1 && measureFlexBytes(bubbles) > MAX_FLEX_CAROUSEL_BYTES) {
+    shownCount -= 1;
+    bubbles = buildWorkoutBubbles(calculatedWorkout, exerciseChunks, shownCount, activeTheme);
   }
 
   return {
@@ -65,6 +56,35 @@ export function buildWorkoutFlexMessage(workout, theme, resolveGroupKey, history
             contents: bubbles
           }
   };
+}
+
+// カルーセルの大きさの上限（LINE は 50 KB。ゆとりを見て 48 KB）
+const MAX_FLEX_CAROUSEL_BYTES = 48000;
+
+// はじめの shownCount 枚ぶんのカードを作る（のこりの種目は「ほか N 種目」）
+function buildWorkoutBubbles(workout, exerciseChunks, shownCount, theme) {
+  const shownChunks = exerciseChunks.slice(0, shownCount);
+  const hiddenCount = exerciseChunks.slice(shownCount).reduce(function (sum, chunk) {
+    return sum + chunk.length;
+  }, 0);
+  const bubbles = shownChunks.map(function (chunk, index) {
+    return buildWorkoutBubble(workout, chunk, index, shownChunks.length, theme);
+  });
+  if (hiddenCount > 0) {
+    bubbles[bubbles.length - 1].body.contents.push({
+      type: "text",
+      text: "ほか " + hiddenCount + " 種目",
+      size: "xs",
+      color: "#5D6C5D",
+      margin: "sm"
+    });
+  }
+  return bubbles;
+}
+
+// カードの JSON の UTF-8 のバイト数
+function measureFlexBytes(bubbles) {
+  return new TextEncoder().encode(JSON.stringify({ type: "carousel", contents: bubbles })).length;
 }
 
 // 送るカードの末尾の文字（プレビューも同じ文字を使う）
